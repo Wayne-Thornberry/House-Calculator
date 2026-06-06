@@ -1,16 +1,16 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-icon green">🏠</div>
-      <h3>The House</h3>
-    </div>
+  <div class="card card-accent-green">
     <div class="card-body">
+      <div class="card-title-row">
+        <div class="card-title-icon green">🏠</div>
+        <h3>The House</h3>
+      </div>
+
       <div class="callout warn">
         <strong>FHS &amp; HTB</strong> are only available for <strong>new builds or self-builds</strong>.
         Second-hand properties don't qualify.
       </div>
 
-      <!-- Property condition -->
       <div class="form-group">
         <label class="form-label" for="pcSelect">I want to buy a…</label>
         <select id="pcSelect" :value="propertyCondition" @change="$emit('update:propertyCondition', ($event.target).value)">
@@ -18,7 +18,6 @@
         </select>
       </div>
 
-      <!-- County -->
       <div class="form-group">
         <label class="form-label" for="cSelect">County</label>
         <select id="cSelect" :value="county" @change="$emit('update:county', ($event.target).value)">
@@ -26,7 +25,6 @@
         </select>
       </div>
 
-      <!-- Property type + bedrooms -->
       <div class="grid-2">
         <div class="form-group">
           <label class="form-label" for="ptSelect">Property type</label>
@@ -42,7 +40,6 @@
         </div>
       </div>
 
-      <!-- Derelict -->
       <label class="checkbox-row">
         <input type="checkbox" :checked="isDerelict" @change="$emit('update:isDerelict', ($event.target).checked)">
         <span class="checkbox-row-text"><strong>This building is derelict</strong><span>Unlocks Vacant Property Refurbishment Grant</span></span>
@@ -50,7 +47,6 @@
 
       <hr>
 
-      <!-- Max affordable toggle -->
       <label class="checkbox-row">
         <input type="checkbox" :checked="useMaxAffordable" @change="$emit('update:useMaxAffordable', ($event.target).checked)">
         <span class="checkbox-row-text"><strong>Calculate max affordable price</strong><span>Auto-computes the theoretical ceiling</span></span>
@@ -60,7 +56,6 @@
         <span class="amount">{{ formatCurrency(recommendedPrice) }}</span>
       </div>
 
-      <!-- House price -->
       <div class="form-group">
         <label class="form-label" for="housePrice">House Price</label>
         <input id="housePrice" type="number" :value="housePrice" @input="$emit('update:housePrice', Number(($event.target).value))" step="5000" min="30000" max="1000000" :disabled="useMaxAffordable">
@@ -68,7 +63,6 @@
 
       <hr>
 
-      <!-- FHS toggle -->
       <label class="checkbox-row">
         <input type="checkbox" :checked="usesFHS" @change="$emit('update:usesFHS', ($event.target).checked)" :disabled="!canUseFHS">
         <span class="checkbox-row-text"><strong>Use the First Home Scheme</strong><span>Government equity share up to 30%</span></span>
@@ -83,7 +77,6 @@
 
       <hr>
 
-      <!-- LTV / deposit -->
       <div class="stat-row"><span class="stat-label">Loan-to-Value (LTV)</span><span class="stat-value">{{ formatCurrency(ltvMortgage) }}</span></div>
       <div class="stat-row"><span class="stat-label">Min deposit required</span><span class="stat-value accent">{{ formatCurrency(depositNeeded) }}</span></div>
       <p class="form-hint" style="margin-top: var(--s3);">

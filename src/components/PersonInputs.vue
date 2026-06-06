@@ -1,11 +1,11 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-icon green">👤</div>
-      <h3>About You</h3>
-    </div>
+  <div class="card card-accent-blue">
     <div class="card-body">
-      <!-- FTB / LHAL checkboxes -->
+      <div class="card-title-row">
+        <div class="card-title-icon blue">👤</div>
+        <h3>About You</h3>
+      </div>
+
       <div class="callout info">
         Only <strong>first-time buyers</strong> can use the First Home Scheme and Help to Buy.
         These schemes are for new builds and self-builds only.
@@ -24,7 +24,6 @@
 
       <hr>
 
-      <!-- Salary tabs -->
       <div class="tabs">
         <button class="tab-btn" :class="{ active: activeTab === 'person1' }" @click="activeTab = 'person1'" type="button">Person One</button>
         <button class="tab-btn" :class="{ active: activeTab === 'person2' }" @click="activeTab = 'person2'" type="button">Person Two</button>
@@ -43,7 +42,6 @@
         </div>
       </div>
 
-      <!-- LTI output -->
       <div class="stat-row">
         <span class="stat-label">Loan-to-Income (LTI) estimate</span>
         <span class="stat-value accent">{{ formatCurrency(maxMortgage) }}</span>
@@ -68,7 +66,6 @@
 
       <hr>
 
-      <!-- Custom mortgage -->
       <div class="form-group">
         <label class="form-label" for="customMortgage">Got a mortgage quote?</label>
         <p class="form-hint">If you have a specific quote from a lender, enter it here. Leave at 0 to use the estimate above.</p>

@@ -1,16 +1,16 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-icon amber">💰</div>
-      <h3>The Money</h3>
-    </div>
+  <div class="card card-accent-amber">
     <div class="card-body">
+      <div class="card-title-row">
+        <div class="card-title-icon amber">💰</div>
+        <h3>The Money</h3>
+      </div>
+
       <div class="callout info">
         <strong>HTB:</strong> Available for first-time buyers purchasing a new property
         valued up to €500,000. Must be your principal private residence for 5+ years.
       </div>
 
-      <!-- Deposit -->
       <div class="form-group">
         <label class="form-label" for="depositAmount">Available deposit</label>
         <input id="depositAmount" type="number" :value="depositAmount" @input="$emit('update:depositAmount', Number(($event.target).value))" min="0" max="9999999" step="1000" placeholder="e.g. 50,000">
@@ -19,7 +19,6 @@
 
       <hr>
 
-      <!-- HTB toggle -->
       <label class="checkbox-row">
         <input type="checkbox" :checked="usesHTB" @change="$emit('update:usesHTB', ($event.target).checked)" :disabled="!canUseHTB">
         <span class="checkbox-row-text"><strong>Use Help to Buy</strong><span>Tax refund up to €30,000</span></span>
@@ -63,7 +62,6 @@
         </details>
       </div>
 
-      <!-- Total -->
       <div class="stat-row" style="border-top: 2px solid var(--border); margin-top: var(--s4); padding-top: var(--s4);">
         <span class="stat-label" style="font-weight: 700; color: var(--text);">Total Down Payment</span>
         <span class="stat-value accent">{{ formatCurrency(totalDownPayment) }}</span>

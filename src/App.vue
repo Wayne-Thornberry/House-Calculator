@@ -39,7 +39,7 @@
       <!-- Inputs section -->
       <div class="container" style="margin-top: var(--s6);">
         <div class="section-label"><span>Your Information</span></div>
-        <div class="grid-3">
+        <div class="input-stack">
           <PersonInputs
             v-model:isFirstTimeBuyer="state.isFirstTimeBuyer"
             v-model:usesLHAL="state.usesLHAL"
@@ -88,7 +88,7 @@
           :housePrice="state.housePrice"
         />
 
-        <div class="grid-3" style="margin-top: var(--s5);">
+        <div class="grid-2" style="margin-top: var(--s5);">
           <FeesInfo :isFirstTimeBuyer="state.isFirstTimeBuyer" />
           <Breakdown
             :housePrice="state.housePrice"

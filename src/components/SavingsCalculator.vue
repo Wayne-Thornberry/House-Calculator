@@ -1,10 +1,11 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-icon blue">📅</div>
-      <h3>Savings Plan</h3>
-    </div>
+  <div class="card card-accent-blue">
     <div class="card-body">
+      <div class="card-title-row">
+        <div class="card-title-icon blue">📅</div>
+        <h3>Savings Plan</h3>
+      </div>
+
       <div class="form-group">
         <label class="form-label" for="savingMonths">How many months can you wait?</label>
         <input id="savingMonths" type="number" min="1" max="120" :value="months" @input="$emit('update:months', Number(($event.target).value))" step="1">

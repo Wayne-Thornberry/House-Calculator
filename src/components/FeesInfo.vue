@@ -1,10 +1,11 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-icon blue">📋</div>
-      <h3>The Fees</h3>
-    </div>
+  <div class="card card-accent-slate">
     <div class="card-body">
+      <div class="card-title-row">
+        <div class="card-title-icon slate">📋</div>
+        <h3>The Fees</h3>
+      </div>
+
       <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--s4);">
         Beyond the deposit and mortgage, budget for these additional costs.
       </p>

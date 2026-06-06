@@ -1,10 +1,11 @@
 <template>
-  <div class="card">
-    <div class="card-header">
-      <div class="card-header-icon green">📊</div>
-      <h3>The Breakdown</h3>
-    </div>
+  <div class="card card-accent-green">
     <div class="card-body">
+      <div class="card-title-row">
+        <div class="card-title-icon green">📊</div>
+        <h3>The Breakdown</h3>
+      </div>
+
       <h4 style="font-size: var(--text-sm); margin-bottom: var(--s3);">Big Picture</h4>
       <div class="table-wrap">
         <table>
