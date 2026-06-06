@@ -1,3 +1,9 @@
+// =============================================================================
+// Irish House Purchase Calculator — Pure Calculation Functions
+// =============================================================================
+// All functions are deterministic, side-effect-free, and testable.
+// =============================================================================
+
 import {
   LTI_MULTIPLIER_FTB,
   LTI_MULTIPLIER_LHAL,
@@ -5,200 +11,167 @@ import {
   FHS_PERCENTAGE_DEFAULT,
   FHS_PERCENTAGE_WITH_HTB,
   HTB_MAX_AMOUNT,
+  HTB_HOUSE_PRICE_LIMIT,
   DEPOSIT_RATE_SMALL,
   DEPOSIT_RATE_LARGE,
   STAMP_DUTY_RATE,
+  STAMP_DUTY_FTB_EXEMPTION_CAP,
   COUNTY_FHS_CAPS,
-  LHAL_MAX_VALUES
+  LHAL_MAX_VALUES,
 } from './constants.js'
 
-/**
- * Calculate the loan-to-income multiplier based on buyer type
- */
-export function getLTIMultiplier(isFirstTimeBuyer, usesLHAL) {
-  if (usesLHAL) return LTI_MULTIPLIER_LHAL
-  if (isFirstTimeBuyer) return LTI_MULTIPLIER_FTB
-  return LTI_MULTIPLIER_NON_FTB
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Clamp a value between min and max inclusive. */
+export function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value))
 }
 
-/**
- * Calculate maximum mortgage based on gross salary and multiplier
- */
-export function calculateMaxMortgage(grossSalary1, grossSalary2, multiplier) {
-  const combinedSalary = Number(grossSalary1) + Number(grossSalary2)
-  return combinedSalary * multiplier
-}
-
-/**
- * Calculate deposit percentage required based on number of bedrooms
- */
-export function getDepositRate(bedrooms) {
-  return bedrooms <= 2 ? DEPOSIT_RATE_SMALL : DEPOSIT_RATE_LARGE
-}
-
-/**
- * Calculate required deposit amount
- */
-export function calculateDepositAmount(housePrice, bedrooms) {
-  const depositRate = getDepositRate(bedrooms)
-  return housePrice * depositRate
-}
-
-/**
- * Calculate loan-to-value mortgage (mortgage needed)
- */
-export function calculateLTVMortgage(housePrice, bedrooms) {
-  const depositRate = getDepositRate(bedrooms)
-  return housePrice * (1.0 - depositRate)
-}
-
-/**
- * Get the smaller of two values (for capping mortgages)
- */
-export function getMinValue(...values) {
-  return Math.min(...values)
-}
-
-/**
- * Calculate available mortgage considering all constraints
- */
-export function calculateAvailableMortgage(
-  ltiMortgage,
-  ltvMortgage,
-  usesLHAL,
-  county
-) {
-  let availableMortgage = getMinValue(ltiMortgage, ltvMortgage)
-  
-  if (usesLHAL) {
-    const lhalMax = LHAL_MAX_VALUES[county] || 0
-    availableMortgage = getMinValue(availableMortgage, lhalMax)
-  }
-  
-  return availableMortgage
-}
-
-/**
- * Calculate First Home Scheme contribution
- */
-export function calculateFHS(
-  housePrice,
-  availableMortgage,
-  minDeposit,
-  county,
-  usesHTB
-) {
-  const maxFHSAllowance = COUNTY_FHS_CAPS[county] || 0
-  const fhsPercentage = usesHTB ? FHS_PERCENTAGE_WITH_HTB : FHS_PERCENTAGE_DEFAULT
-  
-  const maxFHS = maxFHSAllowance * fhsPercentage
-  const outputValue = minDeposit + availableMortgage
-  const minFHS = housePrice - outputValue
-  
-  const fhs = getMinValue(maxFHS, minFHS)
-  return Math.max(0, fhs)
-}
-
-/**
- * Calculate Help to Buy value from income tax paid over 4 years
- */
-export function calculateHTB(year1, year2, year3, year4) {
-  const total = Number(year1) + Number(year2) + Number(year3) + Number(year4)
-  return getMinValue(total, HTB_MAX_AMOUNT)
-}
-
-/**
- * Calculate stamp duty (1% of house price)
- */
-export function calculateStampDuty(housePrice) {
-  return housePrice * STAMP_DUTY_RATE
-}
-
-/**
- * Check if schemes are eligible based on property condition and buyer type
- */
-export function areSchemesEligible(propertyCondition, isFirstTimeBuyer) {
-  // Second-hand houses or non-first-time buyers cannot use schemes
-  return propertyCondition !== 'secondhand' && isFirstTimeBuyer
-}
-
-/**
- * Check if FHS is possible given current inputs
- */
-export function isFHSPossible(
-  housePrice,
-  availableMortgage,
-  minDeposit,
-  county,
-  usesHTB
-) {
-  const fhs = calculateFHS(housePrice, availableMortgage, minDeposit, county, usesHTB)
-  return fhs > 0
-}
-
-/**
- * Check if house price is within HTB limits
- */
-export function isHTBEligible(housePrice, propertyCondition, isFirstTimeBuyer) {
-  return (
-    areSchemesEligible(propertyCondition, isFirstTimeBuyer) &&
-    housePrice <= HTB_MAX_AMOUNT * 16.67 // Roughly 500k limit
-  )
-}
-
-/**
- * Calculate total funds available for purchase
- */
-export function calculateTotalFunds(
-  availableMortgage,
-  fhsAmount,
-  depositAmount,
-  htbAmount
-) {
-  return availableMortgage + fhsAmount + depositAmount + htbAmount
-}
-
-/**
- * Determine if house can be afforded
- */
-export function canAffordHouse(totalFunds, housePrice) {
-  return totalFunds >= housePrice
-}
-
-/**
- * Calculate monthly savings needed
- */
-export function calculateMonthlySavings(targetDeposit, months) {
-  if (months <= 0) return 0
-  return Math.round(targetDeposit / months)
-}
-
-/**
- * Format currency value
- */
+/** Format a number as EUR currency (Irish locale). */
 export function formatCurrency(value) {
   return new Intl.NumberFormat('en-IE', {
     style: 'currency',
     currency: 'EUR',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    maximumFractionDigits: 0,
   }).format(value)
 }
 
-/**
- * Get FHS cap for county
- */
+// ---------------------------------------------------------------------------
+// Loan-to-Income (LTI)
+// ---------------------------------------------------------------------------
+
+/** Return the LTI multiplier for the given buyer profile. */
+export function getLTIMultiplier(isFirstTimeBuyer, usesLHAL) {
+  if (usesLHAL) return LTI_MULTIPLIER_LHAL
+  return isFirstTimeBuyer ? LTI_MULTIPLIER_FTB : LTI_MULTIPLIER_NON_FTB
+}
+
+/** Maximum mortgage based purely on income × multiplier. */
+export function calculateMaxMortgage(grossSalary1, grossSalary2, multiplier) {
+  return (Number(grossSalary1) + Number(grossSalary2)) * multiplier
+}
+
+// ---------------------------------------------------------------------------
+// Deposit & Loan-to-Value (LTV)
+// ---------------------------------------------------------------------------
+
+/** Deposit rate based on bedroom count (Central Bank rules). */
+export function getDepositRate(bedrooms) {
+  return bedrooms <= 2 ? DEPOSIT_RATE_SMALL : DEPOSIT_RATE_LARGE
+}
+
+/** Minimum deposit required in €. */
+export function calculateDepositAmount(housePrice, bedrooms) {
+  return housePrice * getDepositRate(bedrooms)
+}
+
+/** Loan-to-value mortgage — the amount the bank must lend based on LTV rules. */
+export function calculateLTVMortgage(housePrice, bedrooms) {
+  return housePrice * (1.0 - getDepositRate(bedrooms))
+}
+
+// ---------------------------------------------------------------------------
+// Available Mortgage (constrained by LTI, LTV, and LHAL caps)
+// ---------------------------------------------------------------------------
+
+export function calculateAvailableMortgage(ltiMortgage, ltvMortgage, usesLHAL, county) {
+  let available = Math.min(ltiMortgage, ltvMortgage)
+  if (usesLHAL && LHAL_MAX_VALUES[county]) {
+    available = Math.min(available, LHAL_MAX_VALUES[county])
+  }
+  return available
+}
+
+// ---------------------------------------------------------------------------
+// First Home Scheme (FHS)
+// ---------------------------------------------------------------------------
+
+/** Calculate the FHS equity contribution (gap-fill between shortfall and cap). */
+export function calculateFHS(housePrice, availableMortgage, minDeposit, county, usesHTB) {
+  const cap = COUNTY_FHS_CAPS[county] || 0
+  if (cap === 0) return 0
+
+  const pct = usesHTB ? FHS_PERCENTAGE_WITH_HTB : FHS_PERCENTAGE_DEFAULT
+  const maxFHS = cap * pct
+  const shortfall = housePrice - (minDeposit + availableMortgage)
+
+  return clamp(shortfall, 0, maxFHS)
+}
+
+// ---------------------------------------------------------------------------
+// Help to Buy (HTB)
+// ---------------------------------------------------------------------------
+
+/** HTB refund — sum of last 4 years' income tax, capped at €30k. */
+export function calculateHTB(y1, y2, y3, y4) {
+  const total = Number(y1) + Number(y2) + Number(y3) + Number(y4)
+  return Math.min(total, HTB_MAX_AMOUNT)
+}
+
+// ---------------------------------------------------------------------------
+// Stamp Duty
+// ---------------------------------------------------------------------------
+
+/** Stamp duty (1 % of price), with first-time-buyer exemption ≤ €500k. */
+export function calculateStampDuty(housePrice, isFirstTimeBuyer) {
+  if (isFirstTimeBuyer && housePrice <= STAMP_DUTY_FTB_EXEMPTION_CAP) return 0
+  return housePrice * STAMP_DUTY_RATE
+}
+
+// ---------------------------------------------------------------------------
+// Eligibility checks
+// ---------------------------------------------------------------------------
+
+/** Schemes (FHS / HTB) are only available to FTBs buying new/self-build. */
+export function areSchemesEligible(propertyCondition, isFirstTimeBuyer) {
+  return propertyCondition !== 'secondhand' && isFirstTimeBuyer
+}
+
+/** Is FHS mathematically possible (positive contribution)? */
+export function isFHSPossible(housePrice, availableMortgage, minDeposit, county, usesHTB) {
+  return calculateFHS(housePrice, availableMortgage, minDeposit, county, usesHTB) > 0
+}
+
+/** Is the house price within HTB's €500k ceiling? */
+export function isHTBEligible(housePrice, propertyCondition, isFirstTimeBuyer) {
+  return areSchemesEligible(propertyCondition, isFirstTimeBuyer) && housePrice <= HTB_HOUSE_PRICE_LIMIT
+}
+
+// ---------------------------------------------------------------------------
+// Aggregate results
+// ---------------------------------------------------------------------------
+
+/** Sum all funding sources. */
+export function calculateTotalFunds(availableMortgage, fhsAmount, depositAmount, htbAmount) {
+  return availableMortgage + fhsAmount + depositAmount + htbAmount
+}
+
+/** Simple yes/no affordability check. */
+export function canAffordHouse(totalFunds, housePrice) {
+  return totalFunds >= housePrice
+}
+
+/** Monthly savings target. */
+export function calculateMonthlySavings(targetDeposit, months) {
+  if (months <= 0) return 0
+  return Math.round(targetDeposit / months)
+}
+
+/** Get the FHS price cap for a county. */
 export function getFHSCapForCounty(county) {
   return COUNTY_FHS_CAPS[county] || 0
 }
 
+// ---------------------------------------------------------------------------
+// Max Affordable Price (theoretical ceiling)
+// ---------------------------------------------------------------------------
+
 /**
- * Calculate maximum affordable house price based on all available resources
- * This represents the theoretical maximum you could afford with:
- * - Your available mortgage (LTI)
- * - Your deposit
- * - Help to Buy (if enabled)
- * - First Home Scheme (if enabled)
+ * Calculate the maximum house price someone could theoretically afford
+ * given their mortgage capacity, deposit, HTB, and optionally FHS.
  */
 export function calculateMaxAffordablePrice(
   availableMortgage,
@@ -207,35 +180,16 @@ export function calculateMaxAffordablePrice(
   usesFHS,
   usesHTB,
   county,
-  bedrooms
 ) {
-  // Start with what you can definitely pay: mortgage + deposit + HTB
-  let totalFunds = availableMortgage + depositAmount + htbAmount
-  
-  // If using FHS, we need to work backwards
-  // FHS contributes a percentage of the house price
-  // So if FHS is 30% (or 20% with HTB), then:
-  // housePrice = mortgage + deposit + HTB + (housePrice × FHS%)
-  // Solving for housePrice:
-  // housePrice × (1 - FHS%) = mortgage + deposit + HTB
-  // housePrice = (mortgage + deposit + HTB) / (1 - FHS%)
-  
+  const base = availableMortgage + depositAmount + htbAmount
+
   if (usesFHS) {
-    const fhsPercentage = usesHTB ? FHS_PERCENTAGE_WITH_HTB : FHS_PERCENTAGE_DEFAULT
-    const maxFHSCap = COUNTY_FHS_CAPS[county] || 0
-    
-    // Calculate theoretical max with FHS
-    const theoreticalMax = totalFunds / (1 - fhsPercentage)
-    
-    // But it's capped by county limits
-    const maxPrice = Math.min(theoreticalMax, maxFHSCap)
-    
-    return Math.floor(maxPrice)
+    const pct = usesHTB ? FHS_PERCENTAGE_WITH_HTB : FHS_PERCENTAGE_DEFAULT
+    const cap = COUNTY_FHS_CAPS[county] || 0
+    // Solving: price = base + price × pct  ⇒  price = base / (1 - pct)
+    const theoretical = base / (1 - pct)
+    return Math.floor(Math.min(theoretical, cap || Infinity))
   }
-  
-  // Without FHS, maximum affordable is simply: mortgage + deposit + HTB
-  // The mortgage amount is already the approved/available mortgage from the bank
-  const maxPrice = totalFunds
-  
-  return Math.floor(maxPrice)
+
+  return Math.floor(base)
 }

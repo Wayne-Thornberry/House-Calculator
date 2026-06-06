@@ -1,159 +1,94 @@
 <template>
-  <div class="house-inputs">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="text-center text-white">The House</h3>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon green">🏠</div>
+      <h3>The House</h3>
+    </div>
+    <div class="card-body">
+      <div class="callout warn">
+        <strong>FHS &amp; HTB</strong> are only available for <strong>new builds or self-builds</strong>.
+        Second-hand properties don't qualify.
       </div>
-      <div class="card-body">
-        <div>
-          <p><b>Important: The First Home Scheme and Help to Buy are only available for new builds or self-build properties. 
-          Second-hand (existing) properties do not qualify for these schemes.</b></p>
 
-          <label for="pcSelect">I want to buy a...</label>
-          <select
-            class="form-select"
-            :value="propertyCondition"
-            @change="$emit('update:propertyCondition', $event.target.value)"
-            id="pcSelect"
-          >
-            <option v-for="option in propertyConditions" :key="option.value" :value="option.value">
-              {{ option.label }}
-            </option>
+      <!-- Property condition -->
+      <div class="form-group">
+        <label class="form-label" for="pcSelect">I want to buy a…</label>
+        <select id="pcSelect" :value="propertyCondition" @change="$emit('update:propertyCondition', ($event.target).value)">
+          <option v-for="o in propertyConditions" :key="o.value" :value="o.value">{{ o.label }}</option>
+        </select>
+      </div>
+
+      <!-- County -->
+      <div class="form-group">
+        <label class="form-label" for="cSelect">County</label>
+        <select id="cSelect" :value="county" @change="$emit('update:county', ($event.target).value)">
+          <option v-for="c in counties" :key="c.value" :value="c.value">{{ c.label }}</option>
+        </select>
+      </div>
+
+      <!-- Property type + bedrooms -->
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label" for="ptSelect">Property type</label>
+          <select id="ptSelect" :value="propertyType" @change="$emit('update:propertyType', ($event.target).value)">
+            <option v-for="t in propertyTypes" :key="t.value" :value="t.value">{{ t.label }}</option>
           </select>
-
-          <label for="cSelect">The house is located in County...</label>
-          <select
-            class="form-select"
-            :value="county"
-            @change="$emit('update:county', $event.target.value)"
-            id="cSelect"
-          >
-            <option v-for="county in counties" :key="county.value" :value="county.value">
-              {{ county.label }}
-            </option>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="bedsOption">Bedrooms</label>
+          <select id="bedsOption" :value="bedrooms" @change="$emit('update:bedrooms', Number(($event.target).value))">
+            <option v-for="n in bedroomOptions" :key="n" :value="n">{{ n }}</option>
           </select>
-
-          <label for="ptSelect">The property is a...</label>
-          <select
-            class="form-select"
-            :value="propertyType"
-            @change="$emit('update:propertyType', $event.target.value)"
-            id="ptSelect"
-          >
-            <option v-for="type in propertyTypes" :key="type.value" :value="type.value">
-              {{ type.label }}
-            </option>
-          </select>
-
-          <label for="bedsOption">Number of bedrooms...</label>
-          <select
-            class="form-select"
-            :value="bedrooms"
-            @change="$emit('update:bedrooms', Number($event.target.value))"
-            id="bedsOption"
-          >
-            <option v-for="num in bedroomOptions" :key="num" :value="num">
-              {{ num }}
-            </option>
-          </select>
-
-          <div>
-            <input
-              type="checkbox"
-              class="form-check-input"
-              :checked="isDerelict"
-              @change="$emit('update:isDerelict', $event.target.checked)"
-              id="isDer"
-            />
-            <label for="isDer">Is this building derelict?</label>
-            <a
-              href="https://www.citizensinformation.ie/en/environment/buildings-and-structures/derelict-sites/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              What's that?
-            </a>
-          </div>
-        </div>
-
-        <hr />
-
-        <div>
-          <input
-            type="checkbox"
-            class="form-check-input"
-            :checked="useMaxAffordable"
-            @change="$emit('update:useMaxAffordable', $event.target.checked)"
-            id="useMaxAffordable"
-          />
-          <label for="useMaxAffordable">Calculate maximum affordable house price</label>
-          
-          <p style="font-size: 1rem; margin-top: 0.5rem; font-weight: bold; color: var(--color-brand-primary);">
-            Maximum affordable: {{ recommendedPrice > 0 ? formatCurrency(recommendedPrice) : '€0' }}
-          </p>
-          <p style="font-size: 0.9rem; margin-top: 0.5rem; font-style: italic;">
-            This will calculate the theoretical maximum house price you could afford based on your mortgage capacity, 
-            deposit, and any enabled schemes (FHS, HTB).
-          </p>
-        </div>
-
-        <div>
-          <label class="form-check-label">House Price</label>
-          <input
-            type="number"
-            :value="housePrice"
-            @input="$emit('update:housePrice', Number($event.target.value))"
-            class="form-control"
-            step="5000"
-            min="30000"
-            max="1000000"
-            :disabled="useMaxAffordable"
-          />
-        </div>
-
-        <hr />
-
-        <div>
-          <input
-            type="checkbox"
-            class="form-check-input"
-            :checked="usesFHS"
-            @change="$emit('update:usesFHS', $event.target.checked)"
-            :disabled="!canUseFHS && !useMaxAffordable"
-            id="useFHS"
-          />
-          <label for="useFHS">Use the First Home Scheme</label>
-          <a href="https://www.firsthomescheme.ie/" target="_blank" rel="noopener noreferrer">
-            What's that?
-          </a>
-        </div>
-
-        <div v-if="usesFHS && fhsAmount > 0">
-          <hr />
-          <label class="text-uppercase">{{ countyLabel }} area value {{ formatCurrency(fhsCap) }}</label>
-          <br />
-          <label>FHS Value</label>
-          <output>+{{ formatCurrency(fhsAmount) }}</output>
-          <br />
-          <label>Home Value With FHS</label>
-          <output>{{ formatCurrency(totalWithFHS) }}</output>
-        </div>
-
-        <hr />
-
-        <div>
-          <b><label>Loan to Value (LTV)</label></b>
-          <output>{{ formatCurrency(ltvMortgage) }}</output>
-          <br />
-          <label>Minimum Deposit Required</label>
-          <output>{{ formatCurrency(depositNeeded) }}</output>
-          <p style="font-size: 0.9rem; margin-top: 0.5rem;">
-            <strong>Central Bank Rules:</strong> You need a minimum deposit of 10% for properties with 3+ bedrooms, 
-            or 20% for properties with 1-2 bedrooms. First-time buyers may access up to 90% LTV on the first €250k 
-            and 80% on the remainder.
-          </p>
         </div>
       </div>
+
+      <!-- Derelict -->
+      <label class="checkbox-row">
+        <input type="checkbox" :checked="isDerelict" @change="$emit('update:isDerelict', ($event.target).checked)">
+        <span class="checkbox-row-text"><strong>This building is derelict</strong><span>Unlocks Vacant Property Refurbishment Grant</span></span>
+      </label>
+
+      <hr>
+
+      <!-- Max affordable toggle -->
+      <label class="checkbox-row">
+        <input type="checkbox" :checked="useMaxAffordable" @change="$emit('update:useMaxAffordable', ($event.target).checked)">
+        <span class="checkbox-row-text"><strong>Calculate max affordable price</strong><span>Auto-computes the theoretical ceiling</span></span>
+      </label>
+      <div v-if="recommendedPrice > 0" class="savings-highlight" style="margin-bottom: var(--s4);">
+        <span style="font-size: var(--text-sm); color: var(--text-muted);">Maximum affordable</span>
+        <span class="amount">{{ formatCurrency(recommendedPrice) }}</span>
+      </div>
+
+      <!-- House price -->
+      <div class="form-group">
+        <label class="form-label" for="housePrice">House Price</label>
+        <input id="housePrice" type="number" :value="housePrice" @input="$emit('update:housePrice', Number(($event.target).value))" step="5000" min="30000" max="1000000" :disabled="useMaxAffordable">
+      </div>
+
+      <hr>
+
+      <!-- FHS toggle -->
+      <label class="checkbox-row">
+        <input type="checkbox" :checked="usesFHS" @change="$emit('update:usesFHS', ($event.target).checked)" :disabled="!canUseFHS">
+        <span class="checkbox-row-text"><strong>Use the First Home Scheme</strong><span>Government equity share up to 30%</span></span>
+      </label>
+      <a href="https://www.firsthomescheme.ie/" target="_blank" rel="noopener noreferrer" class="inline-link">Learn about FHS</a>
+
+      <div v-if="usesFHS && fhsAmount > 0" class="fhs-box">
+        <div class="stat-row"><span class="stat-label">{{ countyLabel }} area cap</span><span class="stat-value">{{ formatCurrency(fhsCap) }}</span></div>
+        <div class="stat-row"><span class="stat-label">FHS contribution</span><span class="stat-value accent">+{{ formatCurrency(fhsAmount) }}</span></div>
+        <div class="stat-row"><span class="stat-label">Total with FHS</span><span class="stat-value accent">{{ formatCurrency(totalWithFHS) }}</span></div>
+      </div>
+
+      <hr>
+
+      <!-- LTV / deposit -->
+      <div class="stat-row"><span class="stat-label">Loan-to-Value (LTV)</span><span class="stat-value">{{ formatCurrency(ltvMortgage) }}</span></div>
+      <div class="stat-row"><span class="stat-label">Min deposit required</span><span class="stat-value accent">{{ formatCurrency(depositNeeded) }}</span></div>
+      <p class="form-hint" style="margin-top: var(--s3);">
+        Central Bank rules: 10% deposit for 3+ bedrooms, 20% for 1–2 bedrooms.
+      </p>
     </div>
   </div>
 </template>
@@ -161,49 +96,21 @@
 <script setup>
 import { computed } from 'vue'
 import { formatCurrency } from '../utils/calculations.js'
-import {
-  COUNTIES,
-  PROPERTY_CONDITIONS,
-  PROPERTY_TYPES,
-  BEDROOM_OPTIONS
-} from '../utils/constants.js'
+import { COUNTIES, PROPERTY_CONDITIONS, PROPERTY_TYPES, BEDROOM_OPTIONS } from '../utils/constants.js'
 
 const props = defineProps({
-  propertyCondition: String,
-  county: String,
-  propertyType: String,
-  bedrooms: Number,
-  isDerelict: Boolean,
-  housePrice: Number,
-  usesFHS: Boolean,
-  canUseFHS: Boolean,
-  fhsAmount: Number,
-  fhsCap: Number,
-  totalWithFHS: Number,
-  ltvMortgage: Number,
-  depositNeeded: Number,
-  useMaxAffordable: Boolean,
-  recommendedPrice: Number
+  propertyCondition: String, county: String, propertyType: String, bedrooms: Number,
+  isDerelict: Boolean, housePrice: Number, usesFHS: Boolean, canUseFHS: Boolean,
+  fhsAmount: Number, fhsCap: Number, totalWithFHS: Number, ltvMortgage: Number,
+  depositNeeded: Number, useMaxAffordable: Boolean, recommendedPrice: Number,
 })
 
-defineEmits([
-  'update:propertyCondition',
-  'update:county',
-  'update:propertyType',
-  'update:bedrooms',
-  'update:isDerelict',
-  'update:housePrice',
-  'update:usesFHS',
-  'update:useMaxAffordable'
-])
+defineEmits(['update:propertyCondition','update:county','update:propertyType','update:bedrooms','update:isDerelict','update:housePrice','update:usesFHS','update:useMaxAffordable'])
 
 const counties = COUNTIES
 const propertyConditions = PROPERTY_CONDITIONS
 const propertyTypes = PROPERTY_TYPES
 const bedroomOptions = BEDROOM_OPTIONS
 
-const countyLabel = computed(() => {
-  const found = COUNTIES.find(c => c.value === props.county)
-  return found ? found.label : props.county
-})
+const countyLabel = computed(() => (COUNTIES.find(c => c.value === props.county) || {}).label || props.county)
 </script>

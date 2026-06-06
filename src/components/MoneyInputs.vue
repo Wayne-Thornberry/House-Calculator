@@ -1,155 +1,72 @@
 <template>
-  <div class="money-inputs">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="text-center text-white">The Money</h3>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon amber">💰</div>
+      <h3>The Money</h3>
+    </div>
+    <div class="card-body">
+      <div class="callout info">
+        <strong>HTB:</strong> Available for first-time buyers purchasing a new property
+        valued up to €500,000. Must be your principal private residence for 5+ years.
       </div>
-      <div class="card-body">
-        <p>
-          <b>Help to Buy Eligibility:</b> Available for first-time buyers purchasing or building a new property valued up to €500,000. 
-          You must occupy the property as your principal private residence for at least 5 years.
-        </p>
 
-        <div>
-          <label>Available deposit amount</label>
-          <input
-            type="number"
-            :value="depositAmount"
-            @input="$emit('update:depositAmount', Number($event.target.value))"
-            class="form-control"
-            min="0"
-            max="9999999"
-            step="1000"
-          />
-        </div>
-        
-        <p>
-          This is the amount of money you have available to put down as a deposit
-          right now if you were to buy a house.
-        </p>
+      <!-- Deposit -->
+      <div class="form-group">
+        <label class="form-label" for="depositAmount">Available deposit</label>
+        <input id="depositAmount" type="number" :value="depositAmount" @input="$emit('update:depositAmount', Number(($event.target).value))" min="0" max="9999999" step="1000" placeholder="e.g. 50,000">
+        <p class="form-hint">Cash you have ready to put down right now.</p>
+      </div>
 
-        <hr />
+      <hr>
 
-        <div>
-          <input
-            type="checkbox"
-            class="form-check-input"
-            :checked="usesHTB"
-            @change="$emit('update:usesHTB', $event.target.checked)"
-            :disabled="!canUseHTB"
-            id="useHTB"
-          />
-          <label for="useHTB">Use the Help To Buy Scheme</label>
-          <a
-            href="https://www.citizensinformation.ie/en/housing/owning-a-home/help-with-buying-a-home/help-to-buy-scheme/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            What's that?
-          </a>
+      <!-- HTB toggle -->
+      <label class="checkbox-row">
+        <input type="checkbox" :checked="usesHTB" @change="$emit('update:usesHTB', ($event.target).checked)" :disabled="!canUseHTB">
+        <span class="checkbox-row-text"><strong>Use Help to Buy</strong><span>Tax refund up to €30,000</span></span>
+      </label>
+      <a href="https://www.citizensinformation.ie/en/housing/owning-a-home/help-with-buying-a-home/help-to-buy-scheme/" target="_blank" rel="noopener noreferrer" class="inline-link">Learn about HTB</a>
+
+      <div v-if="usesHTB">
+        <div class="tax-grid">
+          <div class="form-group">
+            <label class="form-label" for="ty1">Year 1 tax paid</label>
+            <input id="ty1" type="number" min="0" step="1000" :value="taxYear1" @input="$emit('update:taxYear1', Number(($event.target).value))" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ty2">Year 2 tax paid</label>
+            <input id="ty2" type="number" min="0" step="1000" :value="taxYear2" @input="$emit('update:taxYear2', Number(($event.target).value))" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ty3">Year 3 tax paid</label>
+            <input id="ty3" type="number" min="0" step="1000" :value="taxYear3" @input="$emit('update:taxYear3', Number(($event.target).value))" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="ty4">Year 4 tax paid</label>
+            <input id="ty4" type="number" min="0" step="1000" :value="taxYear4" @input="$emit('update:taxYear4', Number(($event.target).value))" placeholder="0">
+          </div>
         </div>
 
-        <div v-if="usesHTB" class="tax-income-container">
-          <ul class="list-inline">
-            <li>
-              <label class="form-label">Year 1 Tax Income</label>
-              <input
-                type="number"
-                min="0"
-                step="1000"
-                :value="taxYear1"
-                @input="$emit('update:taxYear1', Number($event.target.value))"
-                class="form-control"
-              />
-            </li>
-
-            <li>
-              <label class="form-label">Year 2 Tax Income</label>
-              <input
-                type="number"
-                min="0"
-                step="1000"
-                :value="taxYear2"
-                @input="$emit('update:taxYear2', Number($event.target.value))"
-                class="form-control"
-              />
-            </li>
-
-            <li>
-              <label class="form-label">Year 3 Tax Income</label>
-              <input
-                type="number"
-                min="0"
-                step="1000"
-                :value="taxYear3"
-                @input="$emit('update:taxYear3', Number($event.target.value))"
-                class="form-control"
-              />
-            </li>
-
-            <li>
-              <label class="form-label">Year 4 Tax Income</label>
-              <input
-                type="number"
-                min="0"
-                step="1000"
-                :value="taxYear4"
-                @input="$emit('update:taxYear4', Number($event.target.value))"
-                class="form-control"
-              />
-            </li>
-
-            <li>
-              <label class="form-label">Total</label>
-              <label class="form-label">{{ formatCurrency(htbAmount) }}</label>
-            </li>
-          </ul>
-
-          <p>
-            <strong>How to calculate:</strong> Enter the Income Tax (including USC and PRSI) you paid in each of the previous 4 years. 
-            Find this on your statement of liability on
-            <a href="https://www.revenue.ie/en/home.aspx" target="_blank" rel="noopener noreferrer">
-              revenue.ie
-            </a> under 'Documents'.
-          </p>
-          
-          <p>
-            <strong>HTB Amount:</strong> You can claim back up to €30,000, which is calculated as:
-          </p>
-          <ul style="font-size: 0.9rem;">
-            <li>5% of the purchase price (for properties up to €500,000), OR</li>
-            <li>The total income tax you paid over the previous 4 years</li>
-            <li>Whichever is lower, up to a maximum of €30,000</li>
-          </ul>
-
-          <p>
-            <b>Important:</b> If you're using both First Home Scheme (FHS) and Help to Buy (HTB), the FHS equity 
-            contribution is reduced from 30% to 20% when HTB is applied.
-            <a
-              href="https://www.firsthomescheme.ie/media/4nda0lnn/0827-first-homes-brochure_r14.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              See official FHS guidelines
-            </a>
-          </p>
-
-          <p>
-            <strong>Application Process:</strong> HTB can be claimed either:
-          </p>
-          <ul style="font-size: 0.9rem;">
-            <li>During the mortgage application (you'll receive a HTB certificate to present to your lender), or</li>
-            <li>After purchase completion (claim a refund from Revenue within 4 years)</li>
-          </ul>
-          
-          <p style="font-size: 0.9rem;">
-            Note: While HTB reduces your required cash deposit, most lenders still want to see evidence of genuine savings 
-            (typically at least 10% in cash) as proof of your ability to manage finances.
-          </p>
+        <div class="stat-row">
+          <span class="stat-label">HTB refund</span>
+          <span class="stat-value accent">{{ formatCurrency(htbAmount) }}</span>
         </div>
 
-        <label class="form-label">Total Down Payment</label>
-        <b><label class="form-label">{{ formatCurrency(totalDownPayment) }}</label></b>
+        <details>
+          <summary>How is HTB calculated?</summary>
+          <p>Enter the Income Tax (including USC &amp; PRSI) you paid in each of the last 4 years — find it on <a href="https://www.revenue.ie/en/home.aspx" target="_blank" rel="noopener noreferrer">revenue.ie</a> under 'Documents'.</p>
+          <p><strong>HTB refund</strong> is the <em>lower</em> of:</p>
+          <ul>
+            <li>5% of the purchase price (up to €500k), or</li>
+            <li>Total income tax paid over 4 years</li>
+          </ul>
+          <p>Max refund: <strong>€30,000</strong>. When used with FHS, the FHS share drops from 30% to 20%.</p>
+        </details>
+      </div>
+
+      <!-- Total -->
+      <div class="stat-row" style="border-top: 2px solid var(--border); margin-top: var(--s4); padding-top: var(--s4);">
+        <span class="stat-label" style="font-weight: 700; color: var(--text);">Total Down Payment</span>
+        <span class="stat-value accent">{{ formatCurrency(totalDownPayment) }}</span>
       </div>
     </div>
   </div>
@@ -160,26 +77,12 @@ import { computed } from 'vue'
 import { formatCurrency } from '../utils/calculations.js'
 
 const props = defineProps({
-  depositAmount: Number,
-  usesHTB: Boolean,
-  canUseHTB: Boolean,
-  taxYear1: Number,
-  taxYear2: Number,
-  taxYear3: Number,
-  taxYear4: Number,
-  htbAmount: Number
+  depositAmount: Number, usesHTB: Boolean, canUseHTB: Boolean,
+  taxYear1: Number, taxYear2: Number, taxYear3: Number, taxYear4: Number,
+  htbAmount: Number,
 })
 
-defineEmits([
-  'update:depositAmount',
-  'update:usesHTB',
-  'update:taxYear1',
-  'update:taxYear2',
-  'update:taxYear3',
-  'update:taxYear4'
-])
+defineEmits(['update:depositAmount','update:usesHTB','update:taxYear1','update:taxYear2','update:taxYear3','update:taxYear4'])
 
-const totalDownPayment = computed(() => {
-  return props.depositAmount + props.htbAmount
-})
+const totalDownPayment = computed(() => props.depositAmount + props.htbAmount)
 </script>

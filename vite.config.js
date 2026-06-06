@@ -1,11 +1,22 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { copyFileSync } from 'fs'
 
-export default defineConfig({ 
+export default defineConfig({
   base: './',
-    plugins: [vue()],
+  plugins: [vue()],
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    target: 'es2021',
+    cssMinify: 'esbuild',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vue: ['vue']
+        }
+      }
+    }
+  },
+  server: {
+    open: true
   }
 })

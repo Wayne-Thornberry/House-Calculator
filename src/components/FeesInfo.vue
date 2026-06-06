@@ -1,53 +1,36 @@
 <template>
-  <div class="fees-info">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="text-center text-white">The Fees</h3>
-      </div>
-      <div class="card-body">
-        <p>Beyond the deposit and mortgage, there are additional costs to budget for when buying a home in Ireland.</p>
-        
-        <h4>Pre-Purchase Fees:</h4>
-        <ul>
-          <li>
-            <strong>Legal Fees:</strong> Solicitors typically charge either a percentage of the property price or a flat fee,
-            usually ranging from €1,500 to €3,000.
-          </li>
-          <li>
-            <strong>Stamp Duty:</strong> 1% of the property purchase price for residential properties. 
-            First-time buyers are exempt from stamp duty on properties up to €500,000 (as of 2024). 
-            If the property is over €500,000, stamp duty applies to the full amount.
-          </li>
-          <li>
-            <strong>Survey (Second-hand properties):</strong> You will need to hire a surveyor to inspect the property.
-            Survey reports typically cost between €300 and €1,000.
-          </li>
-          <li>
-            <strong>Snag List (New builds):</strong> For new builds, you'll need a snagging inspection to identify
-            any defects or incomplete work. This typically costs €400-€800.
-          </li>
-          <li>
-            <strong>Valuation (Second-hand properties):</strong> Banks require a property valuation before approving a mortgage.
-            Valuation fees typically range from €150 to €250.
-          </li>
-        </ul>
-        
-        <h4>Post-Purchase Fees:</h4>
-        <ul>
-          <li>
-            <strong>Home Insurance:</strong> Costs vary depending on the provider and property.
-            It's advisable to compare quotes from multiple insurers after your purchase is complete.
-          </li>
-          <li>
-            <strong>Renovation & Redecoration:</strong> Budget for improvements if purchasing a second-hand property.
-            This typically doesn't apply to new builds.
-          </li>
-          <li>
-            <strong>Moving Costs:</strong> Hiring a removal company typically costs €500-€1,500, depending on
-            the size of your move. DIY van rental is cheaper at around €100-€200 per day.
-          </li>
-        </ul>
-      </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon blue">📋</div>
+      <h3>The Fees</h3>
+    </div>
+    <div class="card-body">
+      <p style="font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--s4);">
+        Beyond the deposit and mortgage, budget for these additional costs.
+      </p>
+
+      <h4 style="font-size: var(--text-sm); margin-bottom: var(--s3);">Pre-Purchase</h4>
+      <ul style="font-size: var(--text-sm); color: var(--text-muted);">
+        <li><strong>Legal Fees:</strong> €1,500–€3,000 (solicitor)</li>
+        <li>
+          <strong>Stamp Duty:</strong> 1% of purchase price.
+          <span v-if="isFirstTimeBuyer" style="color: var(--brand);">As a first-time buyer, you're exempt on properties up to €500,000.</span>
+        </li>
+        <li><strong>Survey:</strong> €300–€1,000 (second-hand properties)</li>
+        <li><strong>Snag List:</strong> €400–€800 (new builds)</li>
+        <li><strong>Valuation:</strong> €150–€250 (required by banks)</li>
+      </ul>
+
+      <h4 style="font-size: var(--text-sm); margin: var(--s4) 0 var(--s3);">Post-Purchase</h4>
+      <ul style="font-size: var(--text-sm); color: var(--text-muted);">
+        <li><strong>Home Insurance:</strong> Varies by provider and property</li>
+        <li><strong>Renovation:</strong> Budget for improvements (second-hand)</li>
+        <li><strong>Moving Costs:</strong> €500–€1,500 (removal company) or €100–€200 (DIY van)</li>
+      </ul>
     </div>
   </div>
 </template>
+
+<script setup>
+defineProps({ isFirstTimeBuyer: Boolean })
+</script>

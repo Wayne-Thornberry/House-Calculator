@@ -1,102 +1,83 @@
-# 🏡 CanIBuyAHouse.ie - Vue 3 SPA
+# 🏡 CanIBuyAHouse.ie — Vue 3 SPA
 
-A modern, interactive calculator to help determine if you can afford to buy a house in Ireland. This tool considers various schemes, grants, and financial factors to give you a comprehensive overview of your home buying potential.
+A modern, private affordability calculator to help determine if you can buy a house in Ireland. Factors in Help to Buy, First Home Scheme, Local Home Authority Loan, stamp duty, and more — all computed **entirely in your browser** (zero data collection).
 
 ## ✨ Features
 
-- **Modern Vue 3 Architecture**: Built with Vue 3 Composition API for better performance and maintainability
-- **Component-Based Design**: Modular, reusable components for easy maintenance
-- **Dark/Light Mode**: Toggle between themes for comfortable viewing
-- **Real-time Calculations**: Instant feedback as you adjust your inputs
-- **Irish Housing Schemes Support**:
-  - First Home Scheme (FHS)
-  - Help to Buy (HTB) Scheme
+- **Real-time calculations** — instant feedback as you adjust inputs
+- **Dark / Light mode** — respects OS preference, saved locally
+- **Irish schemes built-in:**
+  - First Home Scheme (FHS) with county-level price caps
+  - Help to Buy (HTB) with 4-year tax lookback
   - Local Home Authority Loan (LHAL)
-- **Comprehensive Fee Breakdown**: Includes solicitor fees, stamp duty, and other costs
-- **Savings Calculator**: Estimates monthly savings needed to reach your deposit goal
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+  - Vacant Property Refurbishment Grant
+- **Dynamic "max affordable price"** mode
+- **Comprehensive fee breakdown**: solicitor, stamp duty (with FTB exemption), snag list, valuation, movers
+- **Savings goal calculator** — monthly savings target
+- **Fully responsive** — desktop, tablet, mobile
+- **Accessibility** — semantic HTML, ARIA labels, `:focus-visible` rings, keyboard-friendly
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- npm or yarn
+- Node.js ≥ 18
+- npm ≥ 9
 
-### Installation
+### Install & Run
 
-1. Clone the repository:
-```bash
-git clone https://gitlab.com/Wayno717/house-calculator.git
-cd house-calculator
-```
-
-2. Install dependencies:
 ```bash
 npm install
+npm run dev        # → http://localhost:5173
 ```
 
-3. Start the development server:
-```bash
-npm run dev
-```
-
-4. Open your browser and navigate to `http://localhost:5173`
-
-### Building for Production
+### Production Build
 
 ```bash
-npm run build
-```
-
-The built files will be in the `dist` directory, ready to be deployed to any static hosting service.
-
-### Preview Production Build
-
-```bash
-npm run preview
+npm run build      # outputs to dist/
+npm run preview    # preview the built app
 ```
 
 ## 📁 Project Structure
 
 ```
 house-calculator/
-├── src/
-│   ├── assets/
-│   │   └── styles/
-│   │       └── main.css          # Global styles with CSS variables
-│   ├── components/
-│   │   ├── PersonInputs.vue      # Salary and buyer type inputs
-│   │   ├── HouseInputs.vue       # Property details inputs
-│   │   ├── MoneyInputs.vue       # Deposit and HTB inputs
-│   │   ├── ResultsDisplay.vue    # Affordability results
-│   │   ├── FeesInfo.vue          # Information about fees
-│   │   ├── Breakdown.vue         # Financial breakdown table
-│   │   └── SavingsCalculator.vue # Monthly savings calculator
-│   ├── utils/
-│   │   ├── constants.js          # Constants and data
-│   │   └── calculations.js       # Pure calculation functions
-│   ├── App.vue                   # Main application component
-│   └── main.js                   # Application entry point
-├── public/                       # Static assets (legacy)
-├── index.html                    # HTML entry point
-├── package.json                  # Dependencies and scripts
-├── vite.config.js               # Vite configuration
-└── README.md                     # This file
+├── index.html                    # Entry point (SEO / OG / PWA meta)
+├── vite.config.js                # Vite + Vue plugin config
+├── package.json
+├── README.md
+└── src/
+    ├── main.js                   # App bootstrap
+    ├── App.vue                   # Root component (state, theme, layout)
+    ├── assets/styles/main.css    # Global design tokens & styles
+    ├── components/
+    │   ├── PersonInputs.vue      # Salary, FTB status, LHAL
+    │   ├── HouseInputs.vue       # Property details, FHS, max affordable
+    │   ├── MoneyInputs.vue       # Deposit, HTB, tax years
+    │   ├── ResultsDisplay.vue    # Yes / No verdict
+    │   ├── FeesInfo.vue          # Fee descriptions (context-aware)
+    │   ├── Breakdown.vue         # Financial summary tables
+    │   └── SavingsCalculator.vue # Monthly savings goal
+    └── utils/
+        ├── constants.js          # Scheme caps, rates, dropdown data
+        └── calculations.js       # Pure, testable calculation functions
 ```
 
-## 🎨 Key Improvements
+## 🎨 Key Architecture Decisions
 
-### Architecture
-- **Vue 3 Composition API**: Modern reactive patterns with better code organization
-- **Component Modularity**: Each section is now a reusable component
-- **Separation of Concerns**: Business logic separated from presentation
+- **Vue 3 Composition API** with `<script setup>`
+- **Reactive state** via `reactive()` in the root component; props down / events up in children
+- **Pure calculation functions** — all math is extracted into `calculations.js` (zero side effects)
+- **Design tokens** via CSS custom properties — light/dark theme is a single attribute swap
+- **Accessibility-first** — focus rings, semantic landmarks, ARIA labels
 
-### Code Quality
-- **Pure Functions**: Calculations are pure, testable functions
-- **Constants Management**: Centralized configuration data
-- **Type Safety**: Proper prop validation and type checking
-- **Readability**: Clear naming conventions and code documentation
+## ⚠️ Disclaimer
+
+This calculator provides estimates based on Central Bank of Ireland rules and government scheme guidelines as understood at the time of development. Results **do not constitute financial advice** or a guarantee of mortgage approval. Always consult a qualified mortgage advisor.
+
+## 📄 License
+
+MIT — see [LICENSE](LICENSE)
 
 ### User Experience
 - **Theme Support**: Persistent dark/light mode with localStorage

@@ -1,146 +1,78 @@
 <template>
-  <div class="person-inputs">
-    <div class="card">
-      <div class="card-header">
-        <h3 class="text-center text-white">The 'You'</h3>
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon green">👤</div>
+      <h3>About You</h3>
+    </div>
+    <div class="card-body">
+      <!-- FTB / LHAL checkboxes -->
+      <div class="callout info">
+        Only <strong>first-time buyers</strong> can use the First Home Scheme and Help to Buy.
+        These schemes are for new builds and self-builds only.
       </div>
-      <div class="card-body">
-        <div>
-          <p><b>Note: Only first-time buyers can avail of the First Home Scheme and Help to Buy incentives. These schemes are only available for new builds or self-builds.</b></p>
-          
-          <div>
-            <input
-              type="checkbox"
-              class="form-check-input"
-              :checked="isFirstTimeBuyer"
-              @change="$emit('update:isFirstTimeBuyer', $event.target.checked)"
-              id="amFtb"
-            />
-            <label for="amFtb">Are you a first-time buyer?</label>
-          </div>
-          
-          <div>
-            <input
-              type="checkbox"
-              class="form-check-input"
-              :checked="usesLHAL"
-              @change="$emit('update:usesLHAL', $event.target.checked)"
-              id="useLHAL"
-            />
-            <label for="useLHAL">I intend to use the Local Home Authority Loan</label>
-            <a href="https://localauthorityhomeloan.ie/" target="_blank" rel="noopener noreferrer">
-              What's that?
-            </a>
-          </div>
+
+      <label class="checkbox-row">
+        <input type="checkbox" :checked="isFirstTimeBuyer" @change="$emit('update:isFirstTimeBuyer', ($event.target).checked)">
+        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>Unlocks FHS and HTB eligibility</span></span>
+      </label>
+
+      <label class="checkbox-row">
+        <input type="checkbox" :checked="usesLHAL" @change="$emit('update:usesLHAL', ($event.target).checked)">
+        <span class="checkbox-row-text"><strong>I plan to use the Local Home Authority Loan</strong><span>Higher LTI multiplier (4.25×)</span></span>
+      </label>
+      <a href="https://localauthorityhomeloan.ie/" target="_blank" rel="noopener noreferrer" class="inline-link">What's the LHAL?</a>
+
+      <hr>
+
+      <!-- Salary tabs -->
+      <div class="tabs">
+        <button class="tab-btn" :class="{ active: activeTab === 'person1' }" @click="activeTab = 'person1'" type="button">Person One</button>
+        <button class="tab-btn" :class="{ active: activeTab === 'person2' }" @click="activeTab = 'person2'" type="button">Person Two</button>
+      </div>
+
+      <div v-show="activeTab === 'person1'">
+        <div class="form-group">
+          <label class="form-label" for="salary1">Gross Annual Salary</label>
+          <input id="salary1" type="number" :value="grossSalary1" @input="$emit('update:grossSalary1', Number(($event.target).value))" min="0" step="2500" placeholder="e.g. 45,000">
         </div>
-
-        <hr />
-
-        <nav>
-          <div class="nav-tabs">
-            <button
-              class="nav-link"
-              :class="{ active: activeTab === 'person1' }"
-              @click="activeTab = 'person1'"
-            >
-              Person One
-            </button>
-            <button
-              class="nav-link"
-              :class="{ active: activeTab === 'person2' }"
-              @click="activeTab = 'person2'"
-            >
-              Person Two
-            </button>
-          </div>
-        </nav>
-
-        <div class="tab-content">
-          <div class="tab-pane" :class="{ active: activeTab === 'person1' }">
-            <label class="form-check-label">Gross Salary</label>
-            <input
-              type="number"
-              :value="grossSalary1"
-              @input="$emit('update:grossSalary1', Number($event.target.value))"
-              class="form-control"
-              min="0"
-              step="2500"
-            />
-          </div>
-          
-          <div class="tab-pane" :class="{ active: activeTab === 'person2' }">
-            <label class="form-check-label">Gross Salary</label>
-            <input
-              type="number"
-              :value="grossSalary2"
-              @input="$emit('update:grossSalary2', Number($event.target.value))"
-              class="form-control"
-              min="0"
-              step="2500"
-            />
-          </div>
+      </div>
+      <div v-show="activeTab === 'person2'">
+        <div class="form-group">
+          <label class="form-label" for="salary2">Gross Annual Salary</label>
+          <input id="salary2" type="number" :value="grossSalary2" @input="$emit('update:grossSalary2', Number(($event.target).value))" min="0" step="2500" placeholder="e.g. 35,000">
         </div>
+      </div>
 
-        <hr />
+      <!-- LTI output -->
+      <div class="stat-row">
+        <span class="stat-label">Loan-to-Income (LTI) estimate</span>
+        <span class="stat-value accent">{{ formatCurrency(maxMortgage) }}</span>
+      </div>
 
-        <div>
-          <b><label>Loan To Income (LTI)</label></b>
-          <output>{{ formatCurrency(maxMortgage) }}</output>
-          <hr />
-          
-          <a
-            href="https://www.citizensinformation.ie/en/housing/owning-a-home/help-with-buying-a-home/taking-out-a-mortgage/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            How is the above value calculated?
-          </a>
-          
-          <p>** The estimated maximum mortgage is calculated using Central Bank of Ireland lending rules:</p>
-          <ul>
-            <li><strong>Second-time buyers:</strong> Up to 3.5× combined gross annual income (this is the general rule, though exceptions may apply for up to 20% of a lender's lending)</li>
-            <li><strong>First-time buyers:</strong> Up to 4× combined gross annual income (exceptions may apply for up to 20% of a lender's lending)</li>
-            <li><strong>LHAL buyers:</strong> Approximately 4.25× combined gross annual income (Local Authority loans may have different criteria)</li>
-          </ul>
-          
-          <p>
-            <strong>Important:</strong> The above calculation is a guideline only. Banks assess affordability based on your income, outgoings, 
-            credit history, and stress tests. The actual amount you can borrow will be determined by your lender. 
-            Use the calculators below for a more detailed assessment.
-          </p>
-          
-          <a
-            href="https://personalbanking.bankofireland.com/borrow/mortgages/calculators/mortgage-calculator/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            BOI Mortgage Calculator
-          </a>
-          <br />
-          <a href="https://aib.ie/our-products/mortgages/mortgage-calculator" target="_blank" rel="noopener noreferrer">
-            AIB Mortgage Calculator
-          </a>
-          <br />
-          <a href="https://localauthorityhomeloan.ie/calculator/" target="_blank" rel="noopener noreferrer">
-            LHAL Calculator
-          </a>
-          
-          <hr />
-          
-          <label>Have a mortgage quote instead?</label>
-          <p style="font-size: 0.9rem; margin-bottom: 0.5rem;">
-            If you have received a specific mortgage quote from a lender, enter it here. Leave at 0 to use the calculated estimate above.
-          </p>
-          <input
-            type="number"
-            :value="customMortgage"
-            @input="$emit('update:customMortgage', Number($event.target.value))"
-            class="form-control"
-            min="0"
-            step="2500"
-            placeholder="0"
-          />
-        </div>
+      <details>
+        <summary>How is LTI calculated?</summary>
+        <p>Based on Central Bank of Ireland lending rules:</p>
+        <ul>
+          <li><strong>Second-time buyers:</strong> up to 3.5× combined gross income</li>
+          <li><strong>First-time buyers:</strong> up to 4× combined gross income</li>
+          <li><strong>LHAL:</strong> approximately 4.25× combined gross income</li>
+        </ul>
+        <p>This is a guideline only. The actual amount depends on your lender's assessment of your income, outgoings, and credit history.</p>
+        <p>External calculators:</p>
+        <ul>
+          <li><a href="https://personalbanking.bankofireland.com/borrow/mortgages/calculators/mortgage-calculator/" target="_blank" rel="noopener noreferrer">Bank of Ireland</a></li>
+          <li><a href="https://aib.ie/our-products/mortgages/mortgage-calculator" target="_blank" rel="noopener noreferrer">AIB</a></li>
+          <li><a href="https://localauthorityhomeloan.ie/calculator/" target="_blank" rel="noopener noreferrer">LHAL Calculator</a></li>
+        </ul>
+      </details>
+
+      <hr>
+
+      <!-- Custom mortgage -->
+      <div class="form-group">
+        <label class="form-label" for="customMortgage">Got a mortgage quote?</label>
+        <p class="form-hint">If you have a specific quote from a lender, enter it here. Leave at 0 to use the estimate above.</p>
+        <input id="customMortgage" type="number" :value="customMortgage" @input="$emit('update:customMortgage', Number(($event.target).value))" min="0" step="2500" placeholder="0">
       </div>
     </div>
   </div>
@@ -150,22 +82,16 @@
 import { ref } from 'vue'
 import { formatCurrency } from '../utils/calculations.js'
 
-const props = defineProps({
+defineProps({
   isFirstTimeBuyer: Boolean,
   usesLHAL: Boolean,
   grossSalary1: Number,
   grossSalary2: Number,
   customMortgage: Number,
-  maxMortgage: Number
+  maxMortgage: Number,
 })
 
-defineEmits([
-  'update:isFirstTimeBuyer',
-  'update:usesLHAL',
-  'update:grossSalary1',
-  'update:grossSalary2',
-  'update:customMortgage'
-])
+defineEmits(['update:isFirstTimeBuyer','update:usesLHAL','update:grossSalary1','update:grossSalary2','update:customMortgage'])
 
 const activeTab = ref('person1')
 </script>
