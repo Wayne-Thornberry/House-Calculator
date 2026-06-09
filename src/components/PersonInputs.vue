@@ -6,20 +6,21 @@
         <h3>About You</h3>
       </div>
 
-      <div class="callout warn">
-        ⚡ <strong>First-time buyer status</strong> is the key that unlocks the <strong>First Home Scheme</strong> and <strong>Help to Buy</strong>.
-        Check the box below if you've never owned a home before.
+      <div class="callout info">
+        Your first-time buyer status was set in <strong>Step 1</strong>. Go back to change it.
       </div>
 
       <label class="checkbox-row fhb-highlight">
-        <input type="checkbox" :checked="isFirstTimeBuyer" @change="$emit('update:isFirstTimeBuyer', ($event.target).checked)">
-        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>Unlocks FHS and HTB — both worth up to €30k+</span></span>
+        <input type="checkbox" :checked="isFirstTimeBuyer" disabled>
+        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>{{ isFirstTimeBuyer ? '✅ Yes — set in Step 1' : '❌ No — set in Step 1' }}</span></span>
       </label>
+      <p class="disabled-hint">🔒 Already answered in Step 1. Go back to change.</p>
 
       <label class="checkbox-row">
-        <input type="checkbox" :checked="usesLHAL" @change="$emit('update:usesLHAL', ($event.target).checked)">
+        <input type="checkbox" :checked="usesLHAL" @change="$emit('update:usesLHAL', ($event.target).checked)" :disabled="usesFHS">
         <span class="checkbox-row-text"><strong>I plan to use the Local Home Authority Loan</strong><span>Higher LTI multiplier (4.25×)</span></span>
       </label>
+      <p v-if="usesFHS" class="disabled-hint">🔒 Cannot combine LHAL with the First Home Scheme. FHS provides equity instead.</p>
       <a href="https://localauthorityhomeloan.ie/" target="_blank" rel="noopener noreferrer" class="inline-link">What's the LHAL?</a>
 
       <hr>
@@ -82,6 +83,7 @@ import { formatCurrency } from '../utils/calculations.js'
 defineProps({
   isFirstTimeBuyer: Boolean,
   usesLHAL: Boolean,
+  usesFHS: Boolean,
   grossSalary1: Number,
   grossSalary2: Number,
   customMortgage: Number,

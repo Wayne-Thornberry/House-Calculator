@@ -58,10 +58,11 @@
         <span class="amount">{{ formatCurrency(recommendedPrice) }}</span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="housePrice">House Price</label>
-        <input id="housePrice" type="number" :value="housePrice" @input="$emit('update:housePrice', Number(($event.target).value))" step="5000" min="30000" max="1000000" :disabled="useMaxAffordable">
+      <div class="stat-row">
+        <span class="stat-label">House price</span>
+        <span class="stat-value">{{ formatCurrency(housePrice) }}</span>
       </div>
+      <p class="form-hint">Set on the previous screen. Go back to change it.</p>
 
       <hr>
 

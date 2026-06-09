@@ -160,6 +160,7 @@
             v-model:grossSalary2="state.grossSalary2"
             v-model:customMortgage="state.customMortgage"
             :maxMortgage="calculations.ltiMortgage"
+            :usesFHS="state.usesFHS"
           />
           <div class="wizard-nav">
             <button class="btn btn-ghost" @click="currentStep = 3" type="button">← The House</button>
@@ -377,6 +378,7 @@ const calculations = computed(() => {
 // Watchers
 watch(() => calculations.value.canUseFHS, ok => { if (!ok) state.usesFHS = false })
 watch(() => calculations.value.canUseHTB, ok => { if (!ok) state.usesHTB = false })
+watch(() => state.usesFHS, on => { if (on) state.usesLHAL = false })
 
 watch(() => state.housePrice, price => {
   if (state.usesFHS) {
