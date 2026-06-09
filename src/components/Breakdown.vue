@@ -33,6 +33,7 @@
             <tr><td>Snag List</td><td>{{ formatCurrency(fees.snagList) }}</td></tr>
             <tr><td>Valuation</td><td>{{ formatCurrency(fees.valuation) }}</td></tr>
             <tr><td>Movers</td><td>{{ formatCurrency(fees.movers) }}</td></tr>
+            <tr style="border-top: 2px solid var(--border);"><td><strong>Total Fees</strong></td><td><strong>{{ formatCurrency(totalFees) }}</strong></td></tr>
           </tbody>
         </table>
       </div>
@@ -57,14 +58,19 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { formatCurrency } from '../utils/calculations.js'
 import { FEES } from '../utils/constants.js'
 
-defineProps({
+const props = defineProps({
   housePrice: Number, borrowedAmount: Number, depositAmount: Number,
   fhsAmount: Number, htbAmount: Number, stampDuty: Number,
   isDerelict: Boolean,
 })
 
 const fees = FEES
+
+const totalFees = computed(() =>
+  fees.solicitor + fees.survey + props.stampDuty + fees.snagList + fees.valuation + fees.movers
+)
 </script>

@@ -75,14 +75,14 @@
               <div class="quick-toggle">
                 <button
                   class="quick-btn"
-                  :class="{ active: state.isFirstTimeBuyer === true }"
-                  @click="state.isFirstTimeBuyer = true"
+                  :class="{ active: ftbChosen && state.isFirstTimeBuyer === true }"
+                  @click="chooseFTB(true)"
                   type="button"
                 >✅ Yes, I'm a first-time buyer</button>
                 <button
                   class="quick-btn"
-                  :class="{ active: state.isFirstTimeBuyer === false }"
-                  @click="state.isFirstTimeBuyer = false"
+                  :class="{ active: ftbChosen && state.isFirstTimeBuyer === false }"
+                  @click="chooseFTB(false)"
                   type="button"
                 >❌ No, I've owned before</button>
               </div>
@@ -90,7 +90,7 @@
           </div>
           <div class="wizard-nav">
             <button class="btn btn-ghost" @click="currentStep = 0" type="button">← Back</button>
-            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next → Mode</button>
+            <button class="btn btn-primary" :disabled="!canAdvanceStep1" @click="currentStep = 2" type="button">Next → Mode</button>
           </div>
         </div>
 
@@ -145,7 +145,7 @@
           </div>
           <div class="wizard-nav">
             <button class="btn btn-ghost" @click="currentStep = 1" type="button">← Back</button>
-            <button class="btn btn-primary" @click="currentStep = 3" type="button">Next → The House</button>
+            <button class="btn btn-primary" :disabled="!canAdvanceStep2" @click="currentStep = 3" type="button">Next → {{ state.useMaxAffordable ? 'Property Profile' : 'The House' }}</button>
           </div>
         </div>
 
@@ -218,9 +218,10 @@
             :canAfford="calculations.canAfford"
             :totalFunds="calculations.totalFunds"
             :housePrice="state.housePrice"
+            :recommendedPrice="calculations.recommendedPrice"
           />
 
-          <div class="grid-2" style="margin-top: var(--s5);">
+          <div v-if="state.housePrice > 0" class="grid-2" style="margin-top: var(--s5);">
             <FeesInfo />
             <Breakdown
               :housePrice="state.housePrice"
@@ -233,7 +234,7 @@
             />
             <SavingsCalculator
               v-model:months="state.savingMonths"
-              :targetDeposit="state.depositAmount"
+              :targetDeposit="state.depositAmount || calculations.depositNeeded"
               :housePrice="state.housePrice"
             />
           </div>
@@ -299,14 +300,29 @@ const currentYear = CURRENT_YEAR
 // Step wizard
 const steps = ['Welcome', 'FTB?', 'Mode', 'House', 'About You', 'Money', 'Results']
 const currentStep = ref(0)
+const ftbChosen = ref(false)
+const modeChosen = ref(false)
+
+function chooseFTB(val) {
+  state.isFirstTimeBuyer = val
+  ftbChosen.value = true
+}
 
 function chooseMode(max) {
   state.useMaxAffordable = max
+  modeChosen.value = true
   if (max) {
     state.housePrice = 0
-    state.usesFHS = true  // aim for max — watcher will correct if ineligible
+    state.usesFHS = true
   }
 }
+
+const canAdvanceStep1 = computed(() => ftbChosen.value)
+const canAdvanceStep2 = computed(() => {
+  if (!modeChosen.value) return false
+  if (!state.useMaxAffordable && (!state.housePrice || state.housePrice <= 0)) return false
+  return true
+})
 
 const state = reactive({
   isFirstTimeBuyer: false,

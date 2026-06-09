@@ -702,6 +702,33 @@ details li { margin-bottom: var(--s1); }
   line-height: 1.6;
 }
 
+.result-numbers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  max-width: 320px;
+  margin: var(--s4) auto;
+  padding: var(--s4);
+  background: var(--bg-muted);
+  border-radius: var(--radius);
+}
+
+.result-number-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.result-number-row strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.result-number-row.surplus strong { color: var(--success); }
+.result-number-row.shortfall strong { color: var(--danger); }
+
 /* ---------------------------------------------------------------------------
    Breakdown table
    --------------------------------------------------------------------------- */
@@ -997,6 +1024,18 @@ a:hover { text-decoration: underline; }
 .btn-primary:hover {
   background: var(--brand-hover);
   border-color: var(--brand-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border-color: var(--border);
+}
+
+.btn:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .btn-ghost {
