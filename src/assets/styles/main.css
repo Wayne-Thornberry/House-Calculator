@@ -1101,6 +1101,14 @@ a:hover { text-decoration: underline; }
   box-shadow: 0 0 0 3px rgba(30,140,94,.12);
 }
 
+.quick-btn small {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: var(--s1);
+}
+
 [data-theme="dark"] .quick-btn.active {
   background: #0d2818;
 }

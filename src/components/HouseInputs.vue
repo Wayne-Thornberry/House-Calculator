@@ -49,20 +49,39 @@
 
       <hr>
 
-      <label class="checkbox-row">
-        <input type="checkbox" :checked="useMaxAffordable" @change="$emit('update:useMaxAffordable', ($event.target).checked)">
-        <span class="checkbox-row-text"><strong>Calculate max affordable price</strong><span>Auto-computes the theoretical ceiling</span></span>
-      </label>
-      <div v-if="recommendedPrice > 0" class="savings-highlight" style="margin-bottom: var(--s4);">
-        <span style="font-size: var(--text-sm); color: var(--text-muted);">Maximum affordable</span>
-        <span class="amount">{{ formatCurrency(recommendedPrice) }}</span>
+      <!-- Max affordable mode: hide the toggle, show computed ceiling -->
+      <div v-if="useMaxAffordable">
+        <div v-if="recommendedPrice > 0" class="savings-highlight" style="margin-bottom: var(--s4);">
+          <span style="font-size: var(--text-sm); color: var(--text-muted);">🏆 Maximum affordable price</span>
+          <span class="amount">{{ formatCurrency(recommendedPrice) }}</span>
+          <p class="form-hint" style="margin-top: var(--s2);">Based on your salary, deposit, and eligible schemes. Fill in About You &amp; Money to see it update.</p>
+        </div>
+        <div v-else class="callout info">
+          📋 Enter your salary and deposit in the next steps to calculate your maximum affordable price.
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Current house price</span>
+          <span class="stat-value">{{ formatCurrency(housePrice) }}</span>
+        </div>
       </div>
 
-      <div class="stat-row">
-        <span class="stat-label">House price</span>
-        <span class="stat-value">{{ formatCurrency(housePrice) }}</span>
-      </div>
-      <p class="form-hint">Set on the previous screen. Go back to change it.</p>
+      <!-- Price mode: show the manual price + optional max toggle -->
+      <template v-else>
+        <label class="checkbox-row">
+          <input type="checkbox" :checked="useMaxAffordable" @change="$emit('update:useMaxAffordable', ($event.target).checked)">
+          <span class="checkbox-row-text"><strong>Calculate max affordable price instead</strong><span>Auto-computes the theoretical ceiling</span></span>
+        </label>
+        <div v-if="recommendedPrice > 0" class="savings-highlight" style="margin-bottom: var(--s4);">
+          <span style="font-size: var(--text-sm); color: var(--text-muted);">Maximum affordable</span>
+          <span class="amount">{{ formatCurrency(recommendedPrice) }}</span>
+        </div>
+
+        <div class="stat-row">
+          <span class="stat-label">House price</span>
+          <span class="stat-value">{{ formatCurrency(housePrice) }}</span>
+        </div>
+        <p class="form-hint">Set on the previous screen. Go back to change it.</p>
+      </template>
 
       <hr>
 

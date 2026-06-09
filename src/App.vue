@@ -94,27 +94,52 @@
           </div>
         </div>
 
-        <!-- Step 2: What's the house price? -->
+        <!-- Step 2: How would you like to use this tool? -->
         <div v-show="currentStep === 2">
           <div class="card card-accent-green">
             <div class="card-body quick-card">
-              <div class="quick-icon">💰</div>
-              <h2 class="quick-title">How much is the house?</h2>
+              <div class="quick-icon">🧭</div>
+              <h2 class="quick-title">How would you like to use this tool?</h2>
               <p class="quick-subtitle">
-                Enter the property value. You can refine the details on the next screen.
+                You can check if you can afford a specific house, or find out the
+                maximum price you could reach with your salary and available schemes.
               </p>
-              <div class="quick-input-wrap">
-                <span class="quick-currency">€</span>
-                <input
-                  id="quickPrice"
-                  type="number"
-                  class="quick-price-input"
-                  :value="state.housePrice || ''"
-                  @input="state.housePrice = Number(($event.target).value)"
-                  min="0"
-                  step="5000"
-                  placeholder="e.g. 350,000"
-                >
+              <div class="quick-toggle">
+                <button
+                  class="quick-btn"
+                  :class="{ active: !state.useMaxAffordable }"
+                  @click="chooseMode(false)"
+                  type="button"
+                >💰 I have a house price in mind<br><small>Check if I can afford it</small></button>
+                <button
+                  class="quick-btn"
+                  :class="{ active: state.useMaxAffordable }"
+                  @click="chooseMode(true)"
+                  type="button"
+                >📊 Calculate my maximum<br><small>Find the highest price I can reach</small></button>
+              </div>
+
+              <!-- Price input (only when "I have a price" is chosen) -->
+              <div v-if="!state.useMaxAffordable" style="margin-top: var(--s5);">
+                <div class="quick-input-wrap">
+                  <span class="quick-currency">€</span>
+                  <input
+                    id="quickPrice"
+                    type="number"
+                    class="quick-price-input"
+                    :value="state.housePrice || ''"
+                    @input="state.housePrice = Number(($event.target).value)"
+                    min="0"
+                    step="5000"
+                    placeholder="e.g. 350,000"
+                  >
+                </div>
+              </div>
+
+              <!-- Max mode summary -->
+              <div v-else class="savings-highlight" style="margin-top: var(--s5);">
+                <span style="font-size: var(--text-sm); color: var(--text-muted);">We'll calculate your maximum affordable price</span>
+                <span class="amount" style="font-size: var(--text-base); font-weight: 600;">based on your salary, deposit &amp; schemes</span>
               </div>
             </div>
           </div>
@@ -273,8 +298,13 @@ import {
 const currentYear = CURRENT_YEAR
 
 // Step wizard
-const steps = ['Welcome', 'FTB?', 'Price', 'House', 'About You', 'Money', 'Results']
+const steps = ['Welcome', 'FTB?', 'Mode', 'House', 'About You', 'Money', 'Results']
 const currentStep = ref(0)
+
+function chooseMode(max) {
+  state.useMaxAffordable = max
+  if (max) state.housePrice = 0
+}
 
 const state = reactive({
   isFirstTimeBuyer: false,
