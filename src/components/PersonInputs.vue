@@ -7,21 +7,21 @@
       </div>
 
       <div class="callout info">
-        Your first-time buyer status was set in <strong>Step 1</strong>. Go back to change it.
+        Your first-time buyer status was set in the <strong>FTB?</strong> step. Go back to change it.
       </div>
 
-      <label class="checkbox-row fhb-highlight">
+      <label class="checkbox-row fhb-locked">
         <input type="checkbox" :checked="isFirstTimeBuyer" disabled>
-        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>{{ isFirstTimeBuyer ? '✅ Yes — set in Step 1' : '❌ No — set in Step 1' }}</span></span>
+        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>{{ isFirstTimeBuyer ? '✅ Yes — set in FTB? step' : '❌ No — set in FTB? step' }}</span></span>
       </label>
-      <p class="disabled-hint">🔒 Already answered in Step 1. Go back to change.</p>
+      <p class="disabled-hint">🔒 Already answered. Go back to the FTB? step to change.</p>
 
       <label class="checkbox-row">
         <input type="checkbox" :checked="usesLHAL" @change="$emit('update:usesLHAL', ($event.target).checked)" :disabled="usesFHS">
-        <span class="checkbox-row-text"><strong>I plan to use the Local Home Authority Loan</strong><span>Higher LTI multiplier (4.25×)</span></span>
+        <span class="checkbox-row-text"><strong>I plan to use the Local Authority Home Loan</strong><span>Higher LTI multiplier (4.25×)</span></span>
       </label>
-      <p v-if="usesFHS" class="disabled-hint">🔒 Cannot combine LHAL with the First Home Scheme. FHS provides equity instead.</p>
-      <a href="https://localauthorityhomeloan.ie/" target="_blank" rel="noopener noreferrer" class="inline-link">What's the LHAL?</a>
+      <p v-if="usesFHS" class="disabled-hint">🔒 Cannot combine the Local Authority Home Loan with the First Home Scheme. FHS provides equity instead.</p>
+      <a href="https://localauthorityhomeloan.ie/" target="_blank" rel="noopener noreferrer" class="inline-link">What's the Local Authority Home Loan?</a>
 
       <hr>
 
@@ -90,7 +90,7 @@ defineProps({
   maxMortgage: Number,
 })
 
-defineEmits(['update:isFirstTimeBuyer','update:usesLHAL','update:grossSalary1','update:grossSalary2','update:customMortgage'])
+defineEmits(['update:usesLHAL','update:grossSalary1','update:grossSalary2','update:customMortgage'])
 
 const activeTab = ref('person1')
 </script>

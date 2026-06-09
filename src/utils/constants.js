@@ -45,7 +45,7 @@ export const COUNTY_FHS_CAPS = {
   tyrone: 0,
 }
 
-// --- Local Home Authority Loan (LHAL) maximum values by county (€) ---------
+// --- Local Authority Home Loan (LAHL) maximum values by county (€) -----------
 // Source: https://localauthorityhomeloan.ie/
 export const LHAL_MAX_VALUES = {
   carlow: 275_000,

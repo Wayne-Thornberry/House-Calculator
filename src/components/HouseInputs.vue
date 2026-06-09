@@ -6,8 +6,11 @@
         <h3>{{ useMaxAffordable ? 'Property Profile' : 'The House' }}</h3>
       </div>
 
-      <div v-if="useMaxAffordable" class="callout info">
+      <div v-if="useMaxAffordable && isFirstTimeBuyer" class="callout info">
         These settings determine what you can afford. We'll include the <strong>First Home Scheme at its maximum rate</strong> in your calculation.
+      </div>
+      <div v-if="useMaxAffordable && !isFirstTimeBuyer" class="callout warn">
+        As a non-first-time buyer, the <strong>First Home Scheme</strong> and <strong>Help to Buy</strong> are not available to you.
       </div>
 
       <div v-if="propertyCondition === 'secondhand'" class="callout warn">
@@ -28,7 +31,7 @@
         <select id="cSelect" :value="county" @change="$emit('update:county', ($event.target).value)">
           <option v-for="c in counties" :key="c.value" :value="c.value">{{ c.label }}</option>
         </select>
-        <p v-if="fhsCap === 0" class="form-hint" style="color: var(--danger);">⚠ FHS and LHAL are not available in Northern Ireland.</p>
+        <p v-if="fhsCap === 0" class="form-hint" style="color: var(--danger);">⚠ FHS and the Local Authority Home Loan are not available in Northern Ireland.</p>
       </div>
 
       <div class="grid-2">
@@ -43,6 +46,7 @@
           <select id="bedsOption" :value="bedrooms" @change="$emit('update:bedrooms', Number(($event.target).value))">
             <option v-for="n in bedroomOptions" :key="n" :value="n">{{ n }}</option>
           </select>
+          <p class="form-hint">For informational use — does not affect mortgage calculations.</p>
         </div>
       </div>
 
@@ -63,23 +67,14 @@
         <div v-else class="callout info">
           📋 Enter your salary and deposit in the next steps to calculate your maximum affordable price.
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Current house price</span>
+        <div v-if="housePrice > 0" class="stat-row">
+          <span class="stat-label">Current calculated price</span>
           <span class="stat-value">{{ formatCurrency(housePrice) }}</span>
         </div>
       </div>
 
-      <!-- Price mode: show the manual price + optional max toggle -->
+      <!-- Price mode: show the manual price -->
       <template v-else>
-        <label class="checkbox-row">
-          <input type="checkbox" :checked="useMaxAffordable" @change="$emit('update:useMaxAffordable', ($event.target).checked)">
-          <span class="checkbox-row-text"><strong>Calculate max affordable price instead</strong><span>Auto-computes the theoretical ceiling</span></span>
-        </label>
-        <div v-if="recommendedPrice > 0" class="savings-highlight" style="margin-bottom: var(--s4);">
-          <span style="font-size: var(--text-sm); color: var(--text-muted);">Maximum affordable</span>
-          <span class="amount">{{ formatCurrency(recommendedPrice) }}</span>
-        </div>
-
         <div class="stat-row">
           <span class="stat-label">House price</span>
           <span class="stat-value">{{ formatCurrency(housePrice) }}</span>
@@ -126,7 +121,7 @@ const props = defineProps({
   isFirstTimeBuyer: Boolean, fhsDisabledReason: String,
 })
 
-defineEmits(['update:propertyCondition','update:county','update:propertyType','update:bedrooms','update:isDerelict','update:housePrice','update:usesFHS','update:useMaxAffordable'])
+defineEmits(['update:propertyCondition','update:county','update:propertyType','update:bedrooms','update:isDerelict','update:usesFHS'])
 
 const counties = COUNTIES
 const propertyConditions = PROPERTY_CONDITIONS

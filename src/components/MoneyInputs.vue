@@ -56,7 +56,7 @@
           <p>Enter the Income Tax (including USC &amp; PRSI) you paid in each of the last 4 years — find it on <a href="https://www.revenue.ie/en/home.aspx" target="_blank" rel="noopener noreferrer">revenue.ie</a> under 'Documents'.</p>
           <p><strong>HTB refund</strong> is the <em>lower</em> of:</p>
           <ul>
-            <li>5% of the purchase price (up to €500k), or</li>
+            <li>10% of the purchase price (up to €500k), or</li>
             <li>Total income tax paid over 4 years</li>
           </ul>
           <p>Max refund: <strong>€30,000</strong>. When used with FHS, the FHS share drops from 30% to 20%.</p>

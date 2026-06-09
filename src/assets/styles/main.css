@@ -855,6 +855,19 @@ a:hover { text-decoration: underline; }
   background: #1e1805;
 }
 
+/* Locked variant — muted since user can't interact */
+.fhb-locked {
+  opacity: .65;
+  cursor: default;
+  border-color: var(--border);
+  background: var(--bg-muted);
+}
+
+.fhb-locked:hover {
+  background: var(--bg-muted);
+  box-shadow: none;
+}
+
 /* ---------------------------------------------------------------------------
    Misc
    --------------------------------------------------------------------------- */

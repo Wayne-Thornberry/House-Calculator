@@ -90,7 +90,7 @@
           </div>
           <div class="wizard-nav">
             <button class="btn btn-ghost" @click="currentStep = 0" type="button">← Back</button>
-            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next →</button>
+            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next → Mode</button>
           </div>
         </div>
 
@@ -157,9 +157,9 @@
             v-model:propertyType="state.propertyType"
             v-model:bedrooms="state.bedrooms"
             v-model:isDerelict="state.isDerelict"
-            v-model:housePrice="state.housePrice"
+            :housePrice="state.housePrice"
             v-model:usesFHS="state.usesFHS"
-            v-model:useMaxAffordable="state.useMaxAffordable"
+            :useMaxAffordable="state.useMaxAffordable"
             :canUseFHS="calculations.canUseFHS"
             :fhsAmount="calculations.fhsAmount"
             :fhsCap="calculations.fhsCap"
@@ -179,7 +179,7 @@
         <!-- Step 4: About You -->
         <div v-show="currentStep === 4">
           <PersonInputs
-            v-model:isFirstTimeBuyer="state.isFirstTimeBuyer"
+            :isFirstTimeBuyer="state.isFirstTimeBuyer"
             v-model:usesLHAL="state.usesLHAL"
             v-model:grossSalary1="state.grossSalary1"
             v-model:grossSalary2="state.grossSalary2"
@@ -375,24 +375,25 @@ const calculations = computed(() => {
   const totalWithFHS = depositNeeded + availableMortgage + fhsAmount
 
   const canUseFHS = eligible && isFHSPossible(state.housePrice, availableMortgage, depositNeeded, state.county, state.usesHTB)
-  const canUseHTB = eligible && state.housePrice <= 500_000
+  const canUseHTB = eligible && state.housePrice <= 500_000 && state.housePrice > 0
 
   // Build human-readable reasons when schemes are disabled
   const fhsDisabledReason = (() => {
     if (canUseFHS) return ''
-    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in Step 1 first'
+    if (!state.isFirstTimeBuyer) return 'Set your status in the FTB? step first'
     if (state.propertyCondition === 'secondhand') return 'Only available for new builds and self-builds'
     const fhsCapLocal = getFHSCapForCounty(state.county)
     if (fhsCapLocal === 0) return 'Not available in Northern Ireland'
-    if (!state.housePrice || state.housePrice <= 0) return 'Enter a house price above'
+    if (!state.housePrice || state.housePrice <= 0) return 'Enter a house price in the Mode step'
     // Eligible but no shortfall — mortgage + deposit already cover the price
     return 'Your mortgage and deposit already cover this price — FHS not needed'
   })()
 
   const htbDisabledReason = (() => {
     if (canUseHTB) return ''
-    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in Step 1 first'
+    if (!state.isFirstTimeBuyer) return 'Set your status in the FTB? step first'
     if (state.propertyCondition === 'secondhand') return 'Only available for new builds and self-builds'
+    if (!state.housePrice || state.housePrice <= 0) return 'Enter a house price in the Mode step'
     if (state.housePrice > 500_000) return 'House price exceeds the €500,000 HTB limit'
     return ''
   })()
@@ -422,6 +423,14 @@ watch(() => state.housePrice, price => {
   }
 })
 
+// Re-clamp house price when county changes while FHS is active
+watch(() => state.county, () => {
+  if (state.usesFHS && state.housePrice > 0) {
+    const cap = getFHSCapForCounty(state.county)
+    if (cap > 0 && state.housePrice > cap) state.housePrice = cap
+  }
+})
+
 watch(() => state.useMaxAffordable, on => {
   if (on && calculations.value.recommendedPrice > 0) state.housePrice = calculations.value.recommendedPrice
 })
@@ -433,8 +442,9 @@ watch(() => calculations.value.recommendedPrice, rp => {
 watch([
   () => state.grossSalary1, () => state.grossSalary2, () => state.depositAmount,
   () => state.taxYear1, () => state.taxYear2, () => state.taxYear3, () => state.taxYear4,
-  () => state.bedrooms, () => state.county, () => state.usesFHS, () => state.usesHTB,
+  () => state.county, () => state.usesFHS, () => state.usesHTB,
   () => state.isFirstTimeBuyer, () => state.usesLHAL, () => state.customMortgage,
+  () => state.propertyCondition,
 ], () => {
   if (state.useMaxAffordable && calculations.value.recommendedPrice > 0) state.housePrice = calculations.value.recommendedPrice
 })
