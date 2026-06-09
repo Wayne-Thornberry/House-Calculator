@@ -62,8 +62,70 @@
           </div>
         </div>
 
-        <!-- Step 1: The House -->
+        <!-- Step 1: Are you a first-time buyer? -->
         <div v-show="currentStep === 1">
+          <div class="card card-accent-blue">
+            <div class="card-body quick-card">
+              <div class="quick-icon">🏠</div>
+              <h2 class="quick-title">Are you a first-time buyer?</h2>
+              <p class="quick-subtitle">
+                This determines which government schemes you can use — like the
+                <strong>First Home Scheme</strong> and <strong>Help to Buy</strong>.
+              </p>
+              <div class="quick-toggle">
+                <button
+                  class="quick-btn"
+                  :class="{ active: state.isFirstTimeBuyer === true }"
+                  @click="state.isFirstTimeBuyer = true"
+                  type="button"
+                >✅ Yes, I'm a first-time buyer</button>
+                <button
+                  class="quick-btn"
+                  :class="{ active: state.isFirstTimeBuyer === false }"
+                  @click="state.isFirstTimeBuyer = false"
+                  type="button"
+                >❌ No, I've owned before</button>
+              </div>
+            </div>
+          </div>
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" @click="currentStep = 0" type="button">← Back</button>
+            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: What's the house price? -->
+        <div v-show="currentStep === 2">
+          <div class="card card-accent-green">
+            <div class="card-body quick-card">
+              <div class="quick-icon">💰</div>
+              <h2 class="quick-title">How much is the house?</h2>
+              <p class="quick-subtitle">
+                Enter the property value. You can refine the details on the next screen.
+              </p>
+              <div class="quick-input-wrap">
+                <span class="quick-currency">€</span>
+                <input
+                  id="quickPrice"
+                  type="number"
+                  class="quick-price-input"
+                  :value="state.housePrice || ''"
+                  @input="state.housePrice = Number(($event.target).value)"
+                  min="0"
+                  step="5000"
+                  placeholder="e.g. 350,000"
+                >
+              </div>
+            </div>
+          </div>
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" @click="currentStep = 1" type="button">← Back</button>
+            <button class="btn btn-primary" @click="currentStep = 3" type="button">Next → The House</button>
+          </div>
+        </div>
+
+        <!-- Step 3: The House -->
+        <div v-show="currentStep === 3">
           <HouseInputs
             v-model:propertyCondition="state.propertyCondition"
             v-model:county="state.county"
@@ -84,13 +146,13 @@
             :fhsDisabledReason="calculations.fhsDisabledReason"
           />
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 0" type="button">← Back</button>
-            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next → About You</button>
+            <button class="btn btn-ghost" @click="currentStep = 2" type="button">← Back</button>
+            <button class="btn btn-primary" @click="currentStep = 4" type="button">Next → About You</button>
           </div>
         </div>
 
-        <!-- Step 2: About You -->
-        <div v-show="currentStep === 2">
+        <!-- Step 4: About You -->
+        <div v-show="currentStep === 4">
           <PersonInputs
             v-model:isFirstTimeBuyer="state.isFirstTimeBuyer"
             v-model:usesLHAL="state.usesLHAL"
@@ -100,13 +162,13 @@
             :maxMortgage="calculations.ltiMortgage"
           />
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 1" type="button">← The House</button>
-            <button class="btn btn-primary" @click="currentStep = 3" type="button">Next → The Money</button>
+            <button class="btn btn-ghost" @click="currentStep = 3" type="button">← The House</button>
+            <button class="btn btn-primary" @click="currentStep = 5" type="button">Next → The Money</button>
           </div>
         </div>
 
-        <!-- Step 3: The Money -->
-        <div v-show="currentStep === 3">
+        <!-- Step 5: The Money -->
+        <div v-show="currentStep === 5">
           <MoneyInputs
             v-model:depositAmount="state.depositAmount"
             v-model:usesHTB="state.usesHTB"
@@ -119,13 +181,13 @@
             :htbDisabledReason="calculations.htbDisabledReason"
           />
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 2" type="button">← About You</button>
-            <button class="btn btn-primary" @click="currentStep = 4" type="button">See Results →</button>
+            <button class="btn btn-ghost" @click="currentStep = 4" type="button">← About You</button>
+            <button class="btn btn-primary" @click="currentStep = 6" type="button">See Results →</button>
           </div>
         </div>
 
-        <!-- Step 4: Results -->
-        <div v-show="currentStep === 4">
+        <!-- Step 6: Results -->
+        <div v-show="currentStep === 6">
           <ResultsDisplay
             :canAfford="calculations.canAfford"
             :totalFunds="calculations.totalFunds"
@@ -152,7 +214,7 @@
           </div>
 
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 3" type="button">← The Money</button>
+            <button class="btn btn-ghost" @click="currentStep = 5" type="button">← The Money</button>
             <span></span>
           </div>
         </div>
@@ -210,7 +272,7 @@ import {
 const currentYear = CURRENT_YEAR
 
 // Step wizard
-const steps = ['Welcome', 'House', 'About You', 'Money', 'Results']
+const steps = ['Welcome', 'FTB?', 'Price', 'House', 'About You', 'Money', 'Results']
 const currentStep = ref(0)
 
 const state = reactive({

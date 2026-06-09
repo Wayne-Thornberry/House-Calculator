@@ -1039,12 +1039,125 @@ a:hover { text-decoration: underline; }
 
 .welcome-note strong { color: var(--text); }
 
+/* ---------------------------------------------------------------------------
+   Quick-question cards (steps 1 & 2)
+   --------------------------------------------------------------------------- */
+.quick-card {
+  text-align: center;
+  padding: var(--s7) var(--s6);
+}
+
+.quick-icon {
+  font-size: 2.5rem;
+  margin-bottom: var(--s4);
+}
+
+.quick-title {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  margin-bottom: var(--s3);
+  color: var(--text);
+}
+
+.quick-subtitle {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  max-width: 460px;
+  margin: 0 auto var(--s6);
+  line-height: 1.6;
+}
+
+/* Two-button toggle (Yes / No) */
+.quick-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s3);
+  max-width: 380px;
+  margin: 0 auto;
+}
+
+.quick-btn {
+  padding: var(--s4) var(--s5);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  font-family: var(--font);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--fast);
+  text-align: center;
+  color: var(--text);
+}
+
+.quick-btn:hover {
+  border-color: var(--slate-300);
+  background: var(--bg-muted);
+}
+
+.quick-btn.active {
+  border-color: var(--brand);
+  background: var(--brand-light);
+  box-shadow: 0 0 0 3px rgba(30,140,94,.12);
+}
+
+[data-theme="dark"] .quick-btn.active {
+  background: #0d2818;
+}
+
+/* Big price input */
+.quick-input-wrap {
+  display: flex;
+  align-items: center;
+  max-width: 340px;
+  margin: 0 auto;
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--fast);
+}
+
+.quick-input-wrap:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(30,140,94,.12);
+}
+
+.quick-currency {
+  padding: var(--s4) var(--s3) var(--s4) var(--s5);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--bg-muted);
+  user-select: none;
+}
+
+.quick-price-input {
+  flex: 1;
+  padding: var(--s4) var(--s5);
+  border: none;
+  font-family: var(--font);
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text);
+  background: var(--bg-card);
+  outline: none;
+  width: 100%;
+  min-width: 0;
+}
+
+.quick-price-input::placeholder {
+  color: var(--slate-300);
+  font-weight: 400;
+}
+
 @media (max-width: 640px) {
   .hero { padding: var(--s5) 0 var(--s4); }
   .hero h1 { font-size: var(--text-3xl); }
   .card-body { padding: var(--s4); }
   .welcome-card { padding: var(--s5) var(--s4); }
   .welcome-title { font-size: var(--text-3xl); }
+  .quick-card { padding: var(--s5) var(--s4); }
+  .quick-title { font-size: var(--text-xl); }
 }
 
 @media print {
