@@ -12,10 +12,9 @@ import {
   FHS_PERCENTAGE_WITH_HTB,
   HTB_MAX_AMOUNT,
   HTB_HOUSE_PRICE_LIMIT,
-  DEPOSIT_RATE_SMALL,
-  DEPOSIT_RATE_LARGE,
+  DEPOSIT_RATE_FTB,
+  DEPOSIT_RATE_NON_FTB,
   STAMP_DUTY_RATE,
-  STAMP_DUTY_FTB_EXEMPTION_CAP,
   COUNTY_FHS_CAPS,
   LHAL_MAX_VALUES,
 } from './constants.js'
@@ -58,19 +57,19 @@ export function calculateMaxMortgage(grossSalary1, grossSalary2, multiplier) {
 // Deposit & Loan-to-Value (LTV)
 // ---------------------------------------------------------------------------
 
-/** Deposit rate based on bedroom count (Central Bank rules). */
-export function getDepositRate(bedrooms) {
-  return bedrooms <= 2 ? DEPOSIT_RATE_SMALL : DEPOSIT_RATE_LARGE
+/** Deposit rate based on FTB status (Central Bank rules). */
+export function getDepositRate(isFirstTimeBuyer) {
+  return isFirstTimeBuyer ? DEPOSIT_RATE_FTB : DEPOSIT_RATE_NON_FTB
 }
 
 /** Minimum deposit required in €. */
-export function calculateDepositAmount(housePrice, bedrooms) {
-  return housePrice * getDepositRate(bedrooms)
+export function calculateDepositAmount(housePrice, isFirstTimeBuyer) {
+  return housePrice * getDepositRate(isFirstTimeBuyer)
 }
 
-/** Loan-to-value mortgage — the amount the bank must lend based on LTV rules. */
-export function calculateLTVMortgage(housePrice, bedrooms) {
-  return housePrice * (1.0 - getDepositRate(bedrooms))
+/** Loan-to-value mortgage — the amount the bank can lend based on LTV rules. */
+export function calculateLTVMortgage(housePrice, isFirstTimeBuyer) {
+  return housePrice * (1.0 - getDepositRate(isFirstTimeBuyer))
 }
 
 // ---------------------------------------------------------------------------
@@ -92,10 +91,10 @@ export function calculateAvailableMortgage(ltiMortgage, ltvMortgage, usesLHAL, c
 /** Calculate the FHS equity contribution (gap-fill between shortfall and cap). */
 export function calculateFHS(housePrice, availableMortgage, minDeposit, county, usesHTB) {
   const cap = COUNTY_FHS_CAPS[county] || 0
-  if (cap === 0) return 0
+  if (cap === 0 || housePrice > cap) return 0
 
   const pct = usesHTB ? FHS_PERCENTAGE_WITH_HTB : FHS_PERCENTAGE_DEFAULT
-  const maxFHS = cap * pct
+  const maxFHS = housePrice * pct
   const shortfall = housePrice - (minDeposit + availableMortgage)
 
   return clamp(shortfall, 0, maxFHS)
@@ -105,19 +104,19 @@ export function calculateFHS(housePrice, availableMortgage, minDeposit, county, 
 // Help to Buy (HTB)
 // ---------------------------------------------------------------------------
 
-/** HTB refund — sum of last 4 years' income tax, capped at €30k. */
-export function calculateHTB(y1, y2, y3, y4) {
+/** HTB refund — sum of last 4 years' income tax, capped at €30k and 10% of price. */
+export function calculateHTB(y1, y2, y3, y4, housePrice) {
   const total = Number(y1) + Number(y2) + Number(y3) + Number(y4)
-  return Math.min(total, HTB_MAX_AMOUNT)
+  const tenPct = housePrice * 0.10
+  return Math.min(total, HTB_MAX_AMOUNT, tenPct)
 }
 
 // ---------------------------------------------------------------------------
 // Stamp Duty
 // ---------------------------------------------------------------------------
 
-/** Stamp duty (1 % of price), with first-time-buyer exemption ≤ €500k. */
-export function calculateStampDuty(housePrice, isFirstTimeBuyer) {
-  if (isFirstTimeBuyer && housePrice <= STAMP_DUTY_FTB_EXEMPTION_CAP) return 0
+/** Stamp duty (1 % of price). No general FTB exemption in Ireland. */
+export function calculateStampDuty(housePrice) {
   return housePrice * STAMP_DUTY_RATE
 }
 
@@ -135,9 +134,9 @@ export function isFHSPossible(housePrice, availableMortgage, minDeposit, county,
   return calculateFHS(housePrice, availableMortgage, minDeposit, county, usesHTB) > 0
 }
 
-/** Is the house price within HTB's €500k ceiling? */
+/** Is the house price within HTB's €500k ceiling and eligible? */
 export function isHTBEligible(housePrice, propertyCondition, isFirstTimeBuyer) {
-  return areSchemesEligible(propertyCondition, isFirstTimeBuyer) && housePrice <= HTB_HOUSE_PRICE_LIMIT
+  return areSchemesEligible(propertyCondition, isFirstTimeBuyer) && housePrice > 0 && housePrice <= HTB_HOUSE_PRICE_LIMIT
 }
 
 // ---------------------------------------------------------------------------
@@ -149,8 +148,9 @@ export function calculateTotalFunds(availableMortgage, fhsAmount, depositAmount,
   return availableMortgage + fhsAmount + depositAmount + htbAmount
 }
 
-/** Simple yes/no affordability check. */
+/** Simple yes/no affordability check. Returns false when price is zero. */
 export function canAffordHouse(totalFunds, housePrice) {
+  if (housePrice <= 0) return false
   return totalFunds >= housePrice
 }
 

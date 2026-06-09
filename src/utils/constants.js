@@ -146,19 +146,21 @@ export const HTB_MAX_AMOUNT = 30_000        // Help to Buy max refund (€)
 export const HTB_HOUSE_PRICE_LIMIT = 500_000 // HTB eligibility price cap (€)
 
 export const STAMP_DUTY_RATE = 0.01         // 1 % of purchase price
-export const STAMP_DUTY_FTB_EXEMPTION_CAP = 500_000 // FTB stamp-duty exemption
 
 // Deposit rates (Central Bank macro-prudential rules)
-export const DEPOSIT_RATE_SMALL = 0.20      // 1–2 bedroom properties
-export const DEPOSIT_RATE_LARGE = 0.10      // 3+ bedroom properties
+// FTBs: 90% LTV → 10% deposit. Non-FTBs: 80% LTV → 20% deposit.
+export const DEPOSIT_RATE_FTB = 0.10
+export const DEPOSIT_RATE_NON_FTB = 0.20
 
 // --- Estimated fees (€) — rough averages, update as needed -------------------
 export const FEES = {
   solicitor: 2_000,
+  survey: 500,
   snagList: 500,
   valuation: 185,
   movers: 500,
   vacantPropertyGrant: 50_000,
+  derelictPropertyGrant: 70_000,
 }
 
 // --- Current year for dynamic footers ----------------------------------------

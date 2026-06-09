@@ -221,7 +221,7 @@
           />
 
           <div class="grid-2" style="margin-top: var(--s5);">
-            <FeesInfo :isFirstTimeBuyer="state.isFirstTimeBuyer" />
+            <FeesInfo />
             <Breakdown
               :housePrice="state.housePrice"
               :borrowedAmount="calculations.availableMortgage"
@@ -230,7 +230,6 @@
               :htbAmount="calculations.htbAmount"
               :stampDuty="calculations.stampDuty"
               :isDerelict="state.isDerelict"
-              :isFirstTimeBuyer="state.isFirstTimeBuyer"
             />
             <SavingsCalculator
               v-model:months="state.savingMonths"
@@ -357,15 +356,15 @@ const calculations = computed(() => {
   const eligible = areSchemesEligible(state.propertyCondition, state.isFirstTimeBuyer)
   const ltiM = getLTIMultiplier(state.isFirstTimeBuyer, state.usesLHAL)
   const ltiMortgage = calculateMaxMortgage(state.grossSalary1, state.grossSalary2, ltiM)
-  const depositNeeded = calculateDepositAmount(state.housePrice, state.bedrooms)
-  const ltvMortgage = calculateLTVMortgage(state.housePrice, state.bedrooms)
+  const depositNeeded = calculateDepositAmount(state.housePrice, state.isFirstTimeBuyer)
+  const ltvMortgage = calculateLTVMortgage(state.housePrice, state.isFirstTimeBuyer)
 
   const availableMortgage = state.customMortgage > 0
     ? state.customMortgage
     : calculateAvailableMortgage(ltiMortgage, ltvMortgage, state.usesLHAL, state.county)
 
   const htbAmount = state.usesHTB
-    ? calculateHTB(state.taxYear1, state.taxYear2, state.taxYear3, state.taxYear4)
+    ? calculateHTB(state.taxYear1, state.taxYear2, state.taxYear3, state.taxYear4, state.housePrice)
     : 0
 
   const fhsCap = getFHSCapForCounty(state.county)
@@ -381,7 +380,7 @@ const calculations = computed(() => {
   // Build human-readable reasons when schemes are disabled
   const fhsDisabledReason = (() => {
     if (canUseFHS) return ''
-    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in About You first'
+    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in Step 1 first'
     if (state.propertyCondition === 'secondhand') return 'Only available for new builds and self-builds'
     const fhsCapLocal = getFHSCapForCounty(state.county)
     if (fhsCapLocal === 0) return 'Not available in Northern Ireland'
@@ -392,7 +391,7 @@ const calculations = computed(() => {
 
   const htbDisabledReason = (() => {
     if (canUseHTB) return ''
-    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in About You first'
+    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in Step 1 first'
     if (state.propertyCondition === 'secondhand') return 'Only available for new builds and self-builds'
     if (state.housePrice > 500_000) return 'House price exceeds the €500,000 HTB limit'
     return ''
@@ -400,7 +399,7 @@ const calculations = computed(() => {
 
   const totalFunds = calculateTotalFunds(availableMortgage, fhsAmount, state.depositAmount, htbAmount)
   const canAfford = canAffordHouse(totalFunds, state.housePrice)
-  const stampDuty = calculateStampDuty(state.housePrice, state.isFirstTimeBuyer)
+  const stampDuty = calculateStampDuty(state.housePrice)
 
   const maxAffMortgage = state.customMortgage > 0 ? state.customMortgage : ltiMortgage
   const recommendedPrice = calculateMaxAffordablePrice(maxAffMortgage, state.depositAmount, htbAmount, state.usesFHS, state.usesHTB, state.county)

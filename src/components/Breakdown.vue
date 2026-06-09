@@ -28,13 +28,8 @@
           <thead><tr><th>Item</th><th>Amount</th></tr></thead>
           <tbody>
             <tr><td>Solicitor</td><td>{{ formatCurrency(fees.solicitor) }}</td></tr>
-            <tr>
-              <td>
-                Stamp Duty
-                <span v-if="stampDuty === 0 && isFirstTimeBuyer && housePrice > 0" class="badge badge-green">FTB exempt</span>
-              </td>
-              <td>{{ formatCurrency(stampDuty) }}</td>
-            </tr>
+            <tr><td>Survey</td><td>{{ formatCurrency(fees.survey) }}</td></tr>
+            <tr><td>Stamp Duty <span class="badge badge-green">1%</span></td><td>{{ formatCurrency(stampDuty) }}</td></tr>
             <tr><td>Snag List</td><td>{{ formatCurrency(fees.snagList) }}</td></tr>
             <tr><td>Valuation</td><td>{{ formatCurrency(fees.valuation) }}</td></tr>
             <tr><td>Movers</td><td>{{ formatCurrency(fees.movers) }}</td></tr>
@@ -51,7 +46,7 @@
             <tbody>
               <tr>
                 <td><a href="https://www.citizensinformation.ie/en/housing/housing-grants-and-schemes/local-authority-housing-grants-and-supports/vacant-property-refurbishment-grant/" target="_blank" rel="noopener noreferrer">Vacant Property Refurbishment Grant</a></td>
-                <td>{{ formatCurrency(fees.vacantPropertyGrant) }}</td>
+                <td>{{ formatCurrency(fees.derelictPropertyGrant) }}</td>
               </tr>
             </tbody>
           </table>
@@ -68,7 +63,7 @@ import { FEES } from '../utils/constants.js'
 defineProps({
   housePrice: Number, borrowedAmount: Number, depositAmount: Number,
   fhsAmount: Number, htbAmount: Number, stampDuty: Number,
-  isDerelict: Boolean, isFirstTimeBuyer: Boolean,
+  isDerelict: Boolean,
 })
 
 const fees = FEES

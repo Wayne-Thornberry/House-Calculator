@@ -107,7 +107,7 @@
       <div class="stat-row"><span class="stat-label">Loan-to-Value (LTV)</span><span class="stat-value">{{ formatCurrency(ltvMortgage) }}</span></div>
       <div class="stat-row"><span class="stat-label">Min deposit required</span><span class="stat-value accent">{{ formatCurrency(depositNeeded) }}</span></div>
       <p class="form-hint" style="margin-top: var(--s3);">
-        Central Bank rules: 10% deposit for 3+ bedrooms, 20% for 1–2 bedrooms.
+        Central Bank rules: 10% deposit for first-time buyers, 20% for second-time+ buyers.
       </p>
     </div>
   </div>

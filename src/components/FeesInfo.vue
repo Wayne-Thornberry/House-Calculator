@@ -13,10 +13,7 @@
       <h4 style="font-size: var(--text-sm); margin-bottom: var(--s3);">Pre-Purchase</h4>
       <ul style="font-size: var(--text-sm); color: var(--text-muted);">
         <li><strong>Legal Fees:</strong> €1,500–€3,000 (solicitor)</li>
-        <li>
-          <strong>Stamp Duty:</strong> 1% of purchase price.
-          <span v-if="isFirstTimeBuyer" style="color: var(--brand);">As a first-time buyer, you're exempt on properties up to €500,000.</span>
-        </li>
+        <li><strong>Stamp Duty:</strong> 1% of purchase price on residential property.</li>
         <li><strong>Survey:</strong> €300–€1,000 (second-hand properties)</li>
         <li><strong>Snag List:</strong> €400–€800 (new builds)</li>
         <li><strong>Valuation:</strong> €150–€250 (required by banks)</li>
@@ -33,5 +30,5 @@
 </template>
 
 <script setup>
-defineProps({ isFirstTimeBuyer: Boolean })
+// No props needed
 </script>
