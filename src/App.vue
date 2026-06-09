@@ -13,152 +13,75 @@
     </header>
 
     <main>
-      <!-- Step wizard -->
       <div class="container" style="margin-top: var(--s6);">
 
-        <!-- Step indicator -->
         <nav class="stepper" aria-label="Progress">
-          <button
-            v-for="(step, i) in steps"
-            :key="i"
-            class="stepper-step"
+          <button v-for="(step, i) in steps" :key="i" class="stepper-step"
             :class="{ active: currentStep === i, done: currentStep > i }"
-            :disabled="currentStep < i"
-            @click="currentStep = i"
-            type="button"
-            :aria-current="currentStep === i ? 'step' : undefined"
-          >
+            :disabled="currentStep < i" @click="currentStep = i" type="button"
+            :aria-current="currentStep === i ? 'step' : undefined">
             <span class="stepper-dot">{{ currentStep > i ? '✓' : i + 1 }}</span>
             <span class="stepper-label">{{ step }}</span>
           </button>
         </nav>
 
-        <!-- Step 0: Welcome -->
+        <!-- Step 0: Welcome + FTB -->
         <div v-show="currentStep === 0">
           <div class="card card-accent-green">
             <div class="card-body welcome-card">
-              <div class="hero-badge">🔒 100% Private — Computed in Your Browser</div>
               <h1 class="welcome-title">Can I buy a house?</h1>
-              <p class="welcome-subtitle">
-                A question on many people's minds. I had the same question and struggled
-                to find clear answers, so I built this tool. It brings together mortgage
-                rules, government schemes, and real costs — all in one place.
-              </p>
-              <p class="welcome-note">
-                <strong>Important:</strong> This calculator assumes you're buying a primary
-                residence. All schemes apply to principal private residences only.
-              </p>
-              <p style="margin-top: var(--s3);">
-                <a
-                  href="https://www.citizensinformation.ie/en/housing/owning-a-home/buying-a-home/steps-involved-buying-a-home/"
-                  target="_blank" rel="noopener noreferrer"
-                >📖 Read the Citizens Information guide →</a>
-              </p>
+              <p class="welcome-subtitle">Quick calculator for Irish mortgages, schemes &amp; costs.</p>
+              <div class="quick-toggle" style="margin-top: var(--s5);">
+                <button class="quick-btn" :class="{ active: ftbChosen && state.isFirstTimeBuyer === true }"
+                  @click="chooseFTB(true)" type="button">✅ First-time buyer</button>
+                <button class="quick-btn" :class="{ active: ftbChosen && state.isFirstTimeBuyer === false }"
+                  @click="chooseFTB(false)" type="button">❌ Owned before</button>
+              </div>
             </div>
           </div>
           <div class="wizard-nav">
             <span></span>
-            <button class="btn btn-primary btn-lg" @click="currentStep = 1" type="button">Get Started →</button>
+            <button class="btn btn-primary btn-lg" :disabled="!canAdvanceStep1" @click="currentStep = 1" type="button">Next →</button>
           </div>
         </div>
 
-        <!-- Step 1: Are you a first-time buyer? -->
+        <!-- Step 1: Price / Mode -->
         <div v-show="currentStep === 1">
-          <div class="card card-accent-blue">
+          <div class="card card-accent-green">
             <div class="card-body quick-card">
-              <div class="quick-icon">🏠</div>
-              <h2 class="quick-title">Are you a first-time buyer?</h2>
-              <p class="quick-subtitle">
-                This determines which government schemes you can use — like the
-                <strong>First Home Scheme</strong> and <strong>Help to Buy</strong>.
-              </p>
+              <h2 class="quick-title">What's the house price?</h2>
               <div class="quick-toggle">
-                <button
-                  class="quick-btn"
-                  :class="{ active: ftbChosen && state.isFirstTimeBuyer === true }"
-                  @click="chooseFTB(true)"
-                  type="button"
-                >✅ Yes, I'm a first-time buyer</button>
-                <button
-                  class="quick-btn"
-                  :class="{ active: ftbChosen && state.isFirstTimeBuyer === false }"
-                  @click="chooseFTB(false)"
-                  type="button"
-                >❌ No, I've owned before</button>
+                <button class="quick-btn" :class="{ active: !state.useMaxAffordable }"
+                  @click="chooseMode(false)" type="button">💰 I know the price</button>
+                <button class="quick-btn" :class="{ active: state.useMaxAffordable }"
+                  @click="chooseMode(true)" type="button">📊 Tell me my max</button>
+              </div>
+              <div v-if="!state.useMaxAffordable" style="margin-top: var(--s5);">
+                <div class="quick-input-wrap">
+                  <span class="quick-currency">€</span>
+                  <input id="quickPrice" type="number" class="quick-price-input"
+                    :value="state.housePrice || ''" @input="state.housePrice = Number(($event.target).value)"
+                    min="0" step="5000" placeholder="e.g. 350,000">
+                </div>
+              </div>
+              <div v-else class="savings-highlight" style="margin-top: var(--s5);">
+                <span style="font-size:var(--text-sm);color:var(--text-muted)">We'll calculate your max affordable price</span>
               </div>
             </div>
           </div>
           <div class="wizard-nav">
             <button class="btn btn-ghost" @click="currentStep = 0" type="button">← Back</button>
-            <button class="btn btn-primary" :disabled="!canAdvanceStep1" @click="currentStep = 2" type="button">Next → Mode</button>
+            <button class="btn btn-primary" :disabled="!canAdvanceStep2" @click="currentStep = 2" type="button">Next →</button>
           </div>
         </div>
 
-        <!-- Step 2: How would you like to use this tool? -->
+        <!-- Step 2: House details -->
         <div v-show="currentStep === 2">
-          <div class="card card-accent-green">
-            <div class="card-body quick-card">
-              <div class="quick-icon">🧭</div>
-              <h2 class="quick-title">How would you like to use this tool?</h2>
-              <p class="quick-subtitle">
-                You can check if you can afford a specific house, or find out the
-                maximum price you could reach with your salary and available schemes.
-              </p>
-              <div class="quick-toggle">
-                <button
-                  class="quick-btn"
-                  :class="{ active: !state.useMaxAffordable }"
-                  @click="chooseMode(false)"
-                  type="button"
-                >💰 I have a house price in mind<br><small>Check if I can afford it</small></button>
-                <button
-                  class="quick-btn"
-                  :class="{ active: state.useMaxAffordable }"
-                  @click="chooseMode(true)"
-                  type="button"
-                >📊 Calculate my maximum<br><small>Find the highest price I can reach</small></button>
-              </div>
-
-              <!-- Price input (only when "I have a price" is chosen) -->
-              <div v-if="!state.useMaxAffordable" style="margin-top: var(--s5);">
-                <div class="quick-input-wrap">
-                  <span class="quick-currency">€</span>
-                  <input
-                    id="quickPrice"
-                    type="number"
-                    class="quick-price-input"
-                    :value="state.housePrice || ''"
-                    @input="state.housePrice = Number(($event.target).value)"
-                    min="0"
-                    step="5000"
-                    placeholder="e.g. 350,000"
-                  >
-                </div>
-              </div>
-
-              <!-- Max mode summary -->
-              <div v-else class="savings-highlight" style="margin-top: var(--s5);">
-                <span style="font-size: var(--text-sm); color: var(--text-muted);">We'll calculate your maximum affordable price</span>
-                <span class="amount" style="font-size: var(--text-base); font-weight: 600;">based on your salary, deposit &amp; schemes</span>
-              </div>
-            </div>
-          </div>
-          <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 1" type="button">← Back</button>
-            <button class="btn btn-primary" :disabled="!canAdvanceStep2" @click="currentStep = 3" type="button">Next → {{ state.useMaxAffordable ? 'Property Profile' : 'The House' }}</button>
-          </div>
-        </div>
-
-        <!-- Step 3: The House -->
-        <div v-show="currentStep === 3">
           <HouseInputs
             v-model:propertyCondition="state.propertyCondition"
             v-model:county="state.county"
-            v-model:propertyType="state.propertyType"
-            v-model:bedrooms="state.bedrooms"
-            v-model:isDerelict="state.isDerelict"
-            :housePrice="state.housePrice"
             v-model:usesFHS="state.usesFHS"
+            :housePrice="state.housePrice"
             :useMaxAffordable="state.useMaxAffordable"
             :canUseFHS="calculations.canUseFHS"
             :fhsAmount="calculations.fhsAmount"
@@ -171,13 +94,13 @@
             :fhsDisabledReason="calculations.fhsDisabledReason"
           />
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 2" type="button">← Back</button>
-            <button class="btn btn-primary" @click="currentStep = 4" type="button">Next → About You</button>
+            <button class="btn btn-ghost" @click="currentStep = 1" type="button">← Back</button>
+            <button class="btn btn-primary" @click="currentStep = 3" type="button">Next →</button>
           </div>
         </div>
 
-        <!-- Step 4: About You -->
-        <div v-show="currentStep === 4">
+        <!-- Step 3: Finances (salary + deposit + HTB) -->
+        <div v-show="currentStep === 3">
           <PersonInputs
             :isFirstTimeBuyer="state.isFirstTimeBuyer"
             v-model:usesLHAL="state.usesLHAL"
@@ -187,14 +110,6 @@
             :maxMortgage="calculations.ltiMortgage"
             :usesFHS="state.usesFHS"
           />
-          <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 3" type="button">← The House</button>
-            <button class="btn btn-primary" @click="currentStep = 5" type="button">Next → The Money</button>
-          </div>
-        </div>
-
-        <!-- Step 5: The Money -->
-        <div v-show="currentStep === 5">
           <MoneyInputs
             v-model:depositAmount="state.depositAmount"
             v-model:usesHTB="state.usesHTB"
@@ -207,20 +122,19 @@
             :htbDisabledReason="calculations.htbDisabledReason"
           />
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 4" type="button">← About You</button>
-            <button class="btn btn-primary" @click="currentStep = 6" type="button">See Results →</button>
+            <button class="btn btn-ghost" @click="currentStep = 2" type="button">← Back</button>
+            <button class="btn btn-primary" @click="currentStep = 4" type="button">See Results →</button>
           </div>
         </div>
 
-        <!-- Step 6: Results -->
-        <div v-show="currentStep === 6">
+        <!-- Step 4: Results -->
+        <div v-show="currentStep === 4">
           <ResultsDisplay
             :canAfford="calculations.canAfford"
             :totalFunds="calculations.totalFunds"
             :housePrice="state.housePrice"
             :recommendedPrice="calculations.recommendedPrice"
           />
-
           <div v-if="state.housePrice > 0" class="grid-2" style="margin-top: var(--s5);">
             <FeesInfo />
             <Breakdown
@@ -238,9 +152,8 @@
               :housePrice="state.housePrice"
             />
           </div>
-
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 5" type="button">← The Money</button>
+            <button class="btn btn-ghost" @click="currentStep = 3" type="button">← Back</button>
             <span></span>
           </div>
         </div>
@@ -298,7 +211,7 @@ import {
 const currentYear = CURRENT_YEAR
 
 // Step wizard
-const steps = ['Welcome', 'FTB?', 'Mode', 'House', 'About You', 'Money', 'Results']
+const steps = ['Start', 'Price', 'House', 'Money', 'Results']
 const currentStep = ref(0)
 const ftbChosen = ref(false)
 const modeChosen = ref(false)

@@ -6,22 +6,11 @@
         <h3>About You</h3>
       </div>
 
-      <div class="callout info">
-        Your first-time buyer status was set in the <strong>FTB?</strong> step. Go back to change it.
-      </div>
-
-      <label class="checkbox-row fhb-locked">
-        <input type="checkbox" :checked="isFirstTimeBuyer" disabled>
-        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>{{ isFirstTimeBuyer ? '✅ Yes — set in FTB? step' : '❌ No — set in FTB? step' }}</span></span>
-      </label>
-      <p class="disabled-hint">🔒 Already answered. Go back to the FTB? step to change.</p>
-
       <label class="checkbox-row">
         <input type="checkbox" :checked="usesLHAL" @change="$emit('update:usesLHAL', ($event.target).checked)" :disabled="usesFHS">
-        <span class="checkbox-row-text"><strong>I plan to use the Local Authority Home Loan</strong><span>Higher LTI multiplier (4.25×)</span></span>
+        <span class="checkbox-row-text"><strong>Local Authority Home Loan</strong><span>Higher LTI (4.25×) — cannot combine with FHS</span></span>
       </label>
-      <p v-if="usesFHS" class="disabled-hint">🔒 Cannot combine the Local Authority Home Loan with the First Home Scheme. FHS provides equity instead.</p>
-      <a href="https://localauthorityhomeloan.ie/" target="_blank" rel="noopener noreferrer" class="inline-link">What's the Local Authority Home Loan?</a>
+      <p v-if="usesFHS" class="disabled-hint">🔒 Cannot combine with First Home Scheme.</p>
 
       <hr>
 
