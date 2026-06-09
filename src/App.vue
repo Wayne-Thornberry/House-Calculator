@@ -36,10 +36,29 @@
         </div>
       </section>
 
-      <!-- Inputs section -->
+      <!-- Inputs section — step wizard -->
       <div class="container" style="margin-top: var(--s6);">
         <div class="section-label"><span>Your Information</span></div>
-        <div class="input-stack">
+
+        <!-- Step indicator -->
+        <nav class="stepper" aria-label="Progress">
+          <button
+            v-for="(step, i) in steps"
+            :key="i"
+            class="stepper-step"
+            :class="{ active: currentStep === i, done: currentStep > i }"
+            :disabled="currentStep < i"
+            @click="currentStep = i"
+            type="button"
+            :aria-current="currentStep === i ? 'step' : undefined"
+          >
+            <span class="stepper-dot">{{ currentStep > i ? '✓' : i + 1 }}</span>
+            <span class="stepper-label">{{ step }}</span>
+          </button>
+        </nav>
+
+        <!-- Step 1: About You -->
+        <div v-show="currentStep === 0">
           <PersonInputs
             v-model:isFirstTimeBuyer="state.isFirstTimeBuyer"
             v-model:usesLHAL="state.usesLHAL"
@@ -48,6 +67,14 @@
             v-model:customMortgage="state.customMortgage"
             :maxMortgage="calculations.ltiMortgage"
           />
+          <div class="wizard-nav">
+            <span></span>
+            <button class="btn btn-primary" @click="currentStep = 1" type="button">Next → The House</button>
+          </div>
+        </div>
+
+        <!-- Step 2: The House -->
+        <div v-show="currentStep === 1">
           <HouseInputs
             v-model:propertyCondition="state.propertyCondition"
             v-model:county="state.county"
@@ -64,7 +91,17 @@
             :ltvMortgage="calculations.ltvMortgage"
             :depositNeeded="calculations.depositNeeded"
             :recommendedPrice="calculations.recommendedPrice"
+            :isFirstTimeBuyer="state.isFirstTimeBuyer"
+            :fhsDisabledReason="calculations.fhsDisabledReason"
           />
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" @click="currentStep = 0" type="button">← About You</button>
+            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next → The Money</button>
+          </div>
+        </div>
+
+        <!-- Step 3: The Money -->
+        <div v-show="currentStep === 2">
           <MoneyInputs
             v-model:depositAmount="state.depositAmount"
             v-model:usesHTB="state.usesHTB"
@@ -74,12 +111,17 @@
             v-model:taxYear4="state.taxYear4"
             :canUseHTB="calculations.canUseHTB"
             :htbAmount="calculations.htbAmount"
+            :htbDisabledReason="calculations.htbDisabledReason"
           />
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" @click="currentStep = 1" type="button">← The House</button>
+            <button class="btn btn-primary" @click="scrollToResults" type="button">See Results ↓</button>
+          </div>
         </div>
       </div>
 
       <!-- Results -->
-      <div class="container" style="margin-top: var(--s6);">
+      <div id="results" class="container" style="margin-top: var(--s6);">
         <div class="section-label"><span>Results &amp; Breakdown</span></div>
 
         <ResultsDisplay
@@ -159,6 +201,15 @@ import {
 
 const currentYear = CURRENT_YEAR
 
+// Step wizard
+const steps = ['About You', 'The House', 'The Money']
+const currentStep = ref(0)
+
+function scrollToResults() {
+  const el = document.getElementById('results')
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
 const state = reactive({
   isFirstTimeBuyer: false,
   usesLHAL: false,
@@ -228,6 +279,26 @@ const calculations = computed(() => {
   const canUseFHS = eligible && isFHSPossible(state.housePrice, availableMortgage, depositNeeded, state.county, state.usesHTB)
   const canUseHTB = eligible && state.housePrice <= 500_000
 
+  // Build human-readable reasons when schemes are disabled
+  const fhsDisabledReason = (() => {
+    if (canUseFHS) return ''
+    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in About You first'
+    if (state.propertyCondition === 'secondhand') return 'Only available for new builds and self-builds'
+    const fhsCapLocal = getFHSCapForCounty(state.county)
+    if (fhsCapLocal === 0) return 'Not available in Northern Ireland'
+    if (!state.housePrice || state.housePrice <= 0) return 'Enter a house price above'
+    // Eligible but no shortfall — mortgage + deposit already cover the price
+    return 'Your mortgage and deposit already cover this price — FHS not needed'
+  })()
+
+  const htbDisabledReason = (() => {
+    if (canUseHTB) return ''
+    if (!state.isFirstTimeBuyer) return 'Check "I\'m a first-time buyer" in About You first'
+    if (state.propertyCondition === 'secondhand') return 'Only available for new builds and self-builds'
+    if (state.housePrice > 500_000) return 'House price exceeds the €500,000 HTB limit'
+    return ''
+  })()
+
   const totalFunds = calculateTotalFunds(availableMortgage, fhsAmount, state.depositAmount, htbAmount)
   const canAfford = canAffordHouse(totalFunds, state.housePrice)
   const stampDuty = calculateStampDuty(state.housePrice, state.isFirstTimeBuyer)
@@ -235,7 +306,7 @@ const calculations = computed(() => {
   const maxAffMortgage = state.customMortgage > 0 ? state.customMortgage : ltiMortgage
   const recommendedPrice = calculateMaxAffordablePrice(maxAffMortgage, state.depositAmount, htbAmount, state.usesFHS, state.usesHTB, state.county)
 
-  return { ltiMortgage, depositNeeded, ltvMortgage, availableMortgage, fhsAmount, fhsCap, totalWithFHS, htbAmount, canUseFHS, canUseHTB, totalFunds, canAfford, stampDuty, recommendedPrice }
+  return { ltiMortgage, depositNeeded, ltvMortgage, availableMortgage, fhsAmount, fhsCap, totalWithFHS, htbAmount, canUseFHS, canUseHTB, totalFunds, canAfford, stampDuty, recommendedPrice, fhsDisabledReason, htbDisabledReason }
 })
 
 // Watchers

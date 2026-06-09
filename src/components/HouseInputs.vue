@@ -6,7 +6,7 @@
         <h3>The House</h3>
       </div>
 
-      <div class="callout warn">
+      <div v-if="propertyCondition === 'secondhand'" class="callout warn">
         <strong>FHS &amp; HTB</strong> are only available for <strong>new builds or self-builds</strong>.
         Second-hand properties don't qualify.
       </div>
@@ -16,6 +16,7 @@
         <select id="pcSelect" :value="propertyCondition" @change="$emit('update:propertyCondition', ($event.target).value)">
           <option v-for="o in propertyConditions" :key="o.value" :value="o.value">{{ o.label }}</option>
         </select>
+        <p v-if="propertyCondition === 'secondhand' && isFirstTimeBuyer" class="form-hint" style="color: var(--danger);">⚠ As a first-time buyer, choosing Second Hand means you lose access to FHS and HTB.</p>
       </div>
 
       <div class="form-group">
@@ -23,6 +24,7 @@
         <select id="cSelect" :value="county" @change="$emit('update:county', ($event.target).value)">
           <option v-for="c in counties" :key="c.value" :value="c.value">{{ c.label }}</option>
         </select>
+        <p v-if="fhsCap === 0" class="form-hint" style="color: var(--danger);">⚠ FHS and LHAL are not available in Northern Ireland.</p>
       </div>
 
       <div class="grid-2">
@@ -67,6 +69,7 @@
         <input type="checkbox" :checked="usesFHS" @change="$emit('update:usesFHS', ($event.target).checked)" :disabled="!canUseFHS">
         <span class="checkbox-row-text"><strong>Use the First Home Scheme</strong><span>Government equity share up to 30%</span></span>
       </label>
+      <p v-if="!canUseFHS && fhsDisabledReason" class="disabled-hint">🔒 {{ fhsDisabledReason }}</p>
       <a href="https://www.firsthomescheme.ie/" target="_blank" rel="noopener noreferrer" class="inline-link">Learn about FHS</a>
 
       <div v-if="usesFHS && fhsAmount > 0" class="fhs-box">
@@ -96,6 +99,7 @@ const props = defineProps({
   isDerelict: Boolean, housePrice: Number, usesFHS: Boolean, canUseFHS: Boolean,
   fhsAmount: Number, fhsCap: Number, totalWithFHS: Number, ltvMortgage: Number,
   depositNeeded: Number, useMaxAffordable: Boolean, recommendedPrice: Number,
+  isFirstTimeBuyer: Boolean, fhsDisabledReason: String,
 })
 
 defineEmits(['update:propertyCondition','update:county','update:propertyType','update:bedrooms','update:isDerelict','update:housePrice','update:usesFHS','update:useMaxAffordable'])

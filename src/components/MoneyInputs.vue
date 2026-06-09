@@ -23,6 +23,7 @@
         <input type="checkbox" :checked="usesHTB" @change="$emit('update:usesHTB', ($event.target).checked)" :disabled="!canUseHTB">
         <span class="checkbox-row-text"><strong>Use Help to Buy</strong><span>Tax refund up to €30,000</span></span>
       </label>
+      <p v-if="!canUseHTB && htbDisabledReason" class="disabled-hint">🔒 {{ htbDisabledReason }}</p>
       <a href="https://www.citizensinformation.ie/en/housing/owning-a-home/help-with-buying-a-home/help-to-buy-scheme/" target="_blank" rel="noopener noreferrer" class="inline-link">Learn about HTB</a>
 
       <div v-if="usesHTB">
@@ -77,7 +78,7 @@ import { formatCurrency } from '../utils/calculations.js'
 const props = defineProps({
   depositAmount: Number, usesHTB: Boolean, canUseHTB: Boolean,
   taxYear1: Number, taxYear2: Number, taxYear3: Number, taxYear4: Number,
-  htbAmount: Number,
+  htbAmount: Number, htbDisabledReason: String,
 })
 
 defineEmits(['update:depositAmount','update:usesHTB','update:taxYear1','update:taxYear2','update:taxYear3','update:taxYear4'])

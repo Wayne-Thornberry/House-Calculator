@@ -6,14 +6,14 @@
         <h3>About You</h3>
       </div>
 
-      <div class="callout info">
-        Only <strong>first-time buyers</strong> can use the First Home Scheme and Help to Buy.
-        These schemes are for new builds and self-builds only.
+      <div class="callout warn">
+        ⚡ <strong>First-time buyer status</strong> is the key that unlocks the <strong>First Home Scheme</strong> and <strong>Help to Buy</strong>.
+        Check the box below if you've never owned a home before.
       </div>
 
-      <label class="checkbox-row">
+      <label class="checkbox-row fhb-highlight">
         <input type="checkbox" :checked="isFirstTimeBuyer" @change="$emit('update:isFirstTimeBuyer', ($event.target).checked)">
-        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>Unlocks FHS and HTB eligibility</span></span>
+        <span class="checkbox-row-text"><strong>I'm a first-time buyer</strong><span>Unlocks FHS and HTB — both worth up to €30k+</span></span>
       </label>
 
       <label class="checkbox-row">
