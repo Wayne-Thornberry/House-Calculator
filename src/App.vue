@@ -13,32 +13,8 @@
     </header>
 
     <main>
-      <!-- Hero -->
-      <section class="hero">
-        <div class="container">
-          <div class="hero-badge">🔒 100% Private — Computed in Your Browser</div>
-          <h1>Can I buy a house?</h1>
-          <p class="hero-subtitle">
-            A question on many people's minds. I had the same question and struggled
-            to find clear answers, so I built this tool. It brings together mortgage
-            rules, government schemes, and real costs — all in one place.
-          </p>
-          <p class="hero-note">
-            <strong>Important:</strong> This calculator assumes you're buying a primary
-            residence. All schemes apply to principal private residences only.
-          </p>
-          <p style="margin-top: 12px;">
-            <a
-              href="https://www.citizensinformation.ie/en/housing/owning-a-home/buying-a-home/steps-involved-buying-a-home/"
-              target="_blank" rel="noopener noreferrer"
-            >📖 Read the Citizens Information guide →</a>
-          </p>
-        </div>
-      </section>
-
-      <!-- Inputs section — step wizard -->
+      <!-- Step wizard -->
       <div class="container" style="margin-top: var(--s6);">
-        <div class="section-label"><span>Your Information</span></div>
 
         <!-- Step indicator -->
         <nav class="stepper" aria-label="Progress">
@@ -57,23 +33,36 @@
           </button>
         </nav>
 
-        <!-- Step 1: About You -->
+        <!-- Step 0: Welcome -->
         <div v-show="currentStep === 0">
-          <PersonInputs
-            v-model:isFirstTimeBuyer="state.isFirstTimeBuyer"
-            v-model:usesLHAL="state.usesLHAL"
-            v-model:grossSalary1="state.grossSalary1"
-            v-model:grossSalary2="state.grossSalary2"
-            v-model:customMortgage="state.customMortgage"
-            :maxMortgage="calculations.ltiMortgage"
-          />
+          <div class="card card-accent-green">
+            <div class="card-body welcome-card">
+              <div class="hero-badge">🔒 100% Private — Computed in Your Browser</div>
+              <h1 class="welcome-title">Can I buy a house?</h1>
+              <p class="welcome-subtitle">
+                A question on many people's minds. I had the same question and struggled
+                to find clear answers, so I built this tool. It brings together mortgage
+                rules, government schemes, and real costs — all in one place.
+              </p>
+              <p class="welcome-note">
+                <strong>Important:</strong> This calculator assumes you're buying a primary
+                residence. All schemes apply to principal private residences only.
+              </p>
+              <p style="margin-top: var(--s3);">
+                <a
+                  href="https://www.citizensinformation.ie/en/housing/owning-a-home/buying-a-home/steps-involved-buying-a-home/"
+                  target="_blank" rel="noopener noreferrer"
+                >📖 Read the Citizens Information guide →</a>
+              </p>
+            </div>
+          </div>
           <div class="wizard-nav">
             <span></span>
-            <button class="btn btn-primary" @click="currentStep = 1" type="button">Next → The House</button>
+            <button class="btn btn-primary btn-lg" @click="currentStep = 1" type="button">Get Started →</button>
           </div>
         </div>
 
-        <!-- Step 2: The House -->
+        <!-- Step 1: The House -->
         <div v-show="currentStep === 1">
           <HouseInputs
             v-model:propertyCondition="state.propertyCondition"
@@ -95,13 +84,29 @@
             :fhsDisabledReason="calculations.fhsDisabledReason"
           />
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 0" type="button">← About You</button>
-            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next → The Money</button>
+            <button class="btn btn-ghost" @click="currentStep = 0" type="button">← Back</button>
+            <button class="btn btn-primary" @click="currentStep = 2" type="button">Next → About You</button>
+          </div>
+        </div>
+
+        <!-- Step 2: About You -->
+        <div v-show="currentStep === 2">
+          <PersonInputs
+            v-model:isFirstTimeBuyer="state.isFirstTimeBuyer"
+            v-model:usesLHAL="state.usesLHAL"
+            v-model:grossSalary1="state.grossSalary1"
+            v-model:grossSalary2="state.grossSalary2"
+            v-model:customMortgage="state.customMortgage"
+            :maxMortgage="calculations.ltiMortgage"
+          />
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" @click="currentStep = 1" type="button">← The House</button>
+            <button class="btn btn-primary" @click="currentStep = 3" type="button">Next → The Money</button>
           </div>
         </div>
 
         <!-- Step 3: The Money -->
-        <div v-show="currentStep === 2">
+        <div v-show="currentStep === 3">
           <MoneyInputs
             v-model:depositAmount="state.depositAmount"
             v-model:usesHTB="state.usesHTB"
@@ -114,39 +119,42 @@
             :htbDisabledReason="calculations.htbDisabledReason"
           />
           <div class="wizard-nav">
-            <button class="btn btn-ghost" @click="currentStep = 1" type="button">← The House</button>
-            <button class="btn btn-primary" @click="scrollToResults" type="button">See Results ↓</button>
+            <button class="btn btn-ghost" @click="currentStep = 2" type="button">← About You</button>
+            <button class="btn btn-primary" @click="currentStep = 4" type="button">See Results →</button>
           </div>
         </div>
-      </div>
 
-      <!-- Results -->
-      <div id="results" class="container" style="margin-top: var(--s6);">
-        <div class="section-label"><span>Results &amp; Breakdown</span></div>
-
-        <ResultsDisplay
-          :canAfford="calculations.canAfford"
-          :totalFunds="calculations.totalFunds"
-          :housePrice="state.housePrice"
-        />
-
-        <div class="grid-2" style="margin-top: var(--s5);">
-          <FeesInfo :isFirstTimeBuyer="state.isFirstTimeBuyer" />
-          <Breakdown
-            :housePrice="state.housePrice"
-            :borrowedAmount="calculations.availableMortgage"
-            :depositAmount="state.depositAmount"
-            :fhsAmount="calculations.fhsAmount"
-            :htbAmount="calculations.htbAmount"
-            :stampDuty="calculations.stampDuty"
-            :isDerelict="state.isDerelict"
-            :isFirstTimeBuyer="state.isFirstTimeBuyer"
-          />
-          <SavingsCalculator
-            v-model:months="state.savingMonths"
-            :targetDeposit="state.depositAmount"
+        <!-- Step 4: Results -->
+        <div v-show="currentStep === 4">
+          <ResultsDisplay
+            :canAfford="calculations.canAfford"
+            :totalFunds="calculations.totalFunds"
             :housePrice="state.housePrice"
           />
+
+          <div class="grid-2" style="margin-top: var(--s5);">
+            <FeesInfo :isFirstTimeBuyer="state.isFirstTimeBuyer" />
+            <Breakdown
+              :housePrice="state.housePrice"
+              :borrowedAmount="calculations.availableMortgage"
+              :depositAmount="state.depositAmount"
+              :fhsAmount="calculations.fhsAmount"
+              :htbAmount="calculations.htbAmount"
+              :stampDuty="calculations.stampDuty"
+              :isDerelict="state.isDerelict"
+              :isFirstTimeBuyer="state.isFirstTimeBuyer"
+            />
+            <SavingsCalculator
+              v-model:months="state.savingMonths"
+              :targetDeposit="state.depositAmount"
+              :housePrice="state.housePrice"
+            />
+          </div>
+
+          <div class="wizard-nav">
+            <button class="btn btn-ghost" @click="currentStep = 3" type="button">← The Money</button>
+            <span></span>
+          </div>
         </div>
       </div>
     </main>
@@ -202,13 +210,8 @@ import {
 const currentYear = CURRENT_YEAR
 
 // Step wizard
-const steps = ['About You', 'The House', 'The Money']
+const steps = ['Welcome', 'House', 'About You', 'Money', 'Results']
 const currentStep = ref(0)
-
-function scrollToResults() {
-  const el = document.getElementById('results')
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
 
 const state = reactive({
   isFirstTimeBuyer: false,

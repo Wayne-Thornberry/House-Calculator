@@ -938,6 +938,19 @@ a:hover { text-decoration: underline; }
   color: var(--brand);
 }
 
+@media (max-width: 500px) {
+  .stepper {
+    gap: 0;
+  }
+  .stepper-step {
+    min-width: 0;
+    padding: var(--s2);
+  }
+  .stepper-label {
+    font-size: 0.65rem;
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Wizard navigation buttons
    --------------------------------------------------------------------------- */
@@ -985,10 +998,53 @@ a:hover { text-decoration: underline; }
   border-color: var(--slate-300);
 }
 
+.btn-lg {
+  padding: 12px 28px;
+  font-size: var(--text-base);
+}
+
+/* ---------------------------------------------------------------------------
+   Welcome card (step 0)
+   --------------------------------------------------------------------------- */
+.welcome-card {
+  text-align: center;
+  padding: var(--s7) var(--s6);
+}
+
+.welcome-title {
+  font-size: var(--text-4xl);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: var(--s4);
+  color: var(--slate-900);
+}
+
+[data-theme="dark"] .welcome-title { color: var(--text); }
+
+.welcome-subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto var(--s4);
+  line-height: 1.6;
+}
+
+.welcome-note {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.welcome-note strong { color: var(--text); }
+
 @media (max-width: 640px) {
   .hero { padding: var(--s5) 0 var(--s4); }
   .hero h1 { font-size: var(--text-3xl); }
   .card-body { padding: var(--s4); }
+  .welcome-card { padding: var(--s5) var(--s4); }
+  .welcome-title { font-size: var(--text-3xl); }
 }
 
 @media print {
