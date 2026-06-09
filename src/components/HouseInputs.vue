@@ -2,8 +2,12 @@
   <div class="card card-accent-green">
     <div class="card-body">
       <div class="card-title-row">
-        <div class="card-title-icon green">🏠</div>
-        <h3>The House</h3>
+        <div class="card-title-icon green">{{ useMaxAffordable ? '🎯' : '🏠' }}</div>
+        <h3>{{ useMaxAffordable ? 'Property Profile' : 'The House' }}</h3>
+      </div>
+
+      <div v-if="useMaxAffordable" class="callout info">
+        These settings determine what you can afford. We'll include the <strong>First Home Scheme at its maximum rate</strong> in your calculation.
       </div>
 
       <div v-if="propertyCondition === 'secondhand'" class="callout warn">

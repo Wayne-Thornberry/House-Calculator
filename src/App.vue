@@ -303,7 +303,10 @@ const currentStep = ref(0)
 
 function chooseMode(max) {
   state.useMaxAffordable = max
-  if (max) state.housePrice = 0
+  if (max) {
+    state.housePrice = 0
+    state.usesFHS = true  // aim for max — watcher will correct if ineligible
+  }
 }
 
 const state = reactive({
@@ -406,7 +409,10 @@ const calculations = computed(() => {
 })
 
 // Watchers
-watch(() => calculations.value.canUseFHS, ok => { if (!ok) state.usesFHS = false })
+watch(() => calculations.value.canUseFHS, ok => {
+  if (!ok) { state.usesFHS = false }
+  else if (state.useMaxAffordable) { state.usesFHS = true }
+})
 watch(() => calculations.value.canUseHTB, ok => { if (!ok) state.usesHTB = false })
 watch(() => state.usesFHS, on => { if (on) state.usesLHAL = false })
 
